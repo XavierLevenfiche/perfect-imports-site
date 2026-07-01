@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!-- Perfect Imports — v2 (PerfectTed-styled). assets/logo-web.png token replaced with the logo data URI by build.py.
+     [CONFIRM] before publish: compliance creds worded as the 3PL PARTNER's; real business mailing address in footer. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfect Imports — Premium Japanese Matcha, Imported for US Brands</title>
+<meta name="description" content="Perfect Imports is the US importer & distributor of PerfectTed premium Japanese matcha — plus bonded, climate-controlled import logistics for food & beverage brands.">
+<style>
+  :root{
+    --navy:#17231b; --navy2:#1f3226; --cream:#f6f4ec; --green:#3faf5a; --green-d:#2f8a46;
+    --pink:#ff4d8d; --yellow:#ffce33; --orange:#ff7a3c; --ink:#17231b; --muted:#5f6f63; --line:#e7e3d6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       color:var(--ink);background:var(--cream);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 26px}
+  .stripes{background:repeating-linear-gradient(115deg,
+      var(--pink) 0 8%,var(--orange) 8% 16%,var(--yellow) 16% 24%,var(--green) 24% 32%,var(--navy2) 32% 40%)}
+  .btn{display:inline-block;background:var(--green);color:#fff;font-weight:800;font-size:15px;
+       padding:14px 26px;border-radius:999px;border:2px solid var(--green);transition:.15s;letter-spacing:.2px}
+  .btn:hover{background:var(--green-d);border-color:var(--green-d);transform:translateY(-2px)}
+  .btn.alt{background:transparent;color:var(--navy);border-color:var(--navy)}
+  .btn.alt:hover{background:var(--navy);color:var(--cream)}
+
+  header{position:sticky;top:0;z-index:60;background:var(--navy)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:74px}
+  .nav img{height:40px;width:auto;display:block}
+  .nav .links{display:flex;gap:28px;align-items:center;color:var(--cream);font-weight:700;font-size:15px}
+  .nav .links a:not(.btn){opacity:.85}.nav .links a:not(.btn):hover{opacity:1}
+  @media(max-width:720px){.nav .links a:not(.btn){display:none}}
+  .stripe-bar{height:7px}
+
+  /* hero */
+  .hero{background:var(--cream);padding:76px 0 60px;position:relative;overflow:hidden}
+  .badge{display:inline-flex;align-items:center;gap:9px;background:#fff;border:2px solid var(--navy);
+         border-radius:999px;padding:8px 16px;font-weight:800;font-size:13px;color:var(--navy);margin-bottom:24px}
+  .badge .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
+  h1{font-size:clamp(38px,6vw,66px);line-height:1.02;letter-spacing:-1.5px;font-weight:900;max-width:15ch;color:var(--navy)}
+  h1 em{font-style:normal;color:var(--green);position:relative;white-space:nowrap}
+  h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:8px;border-radius:6px;
+     background:var(--green);opacity:.25}
+  .hero .sub{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:54ch;margin:24px 0 32px;font-weight:600}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero .pill{margin-top:34px;font-weight:800;color:var(--navy);font-size:15px;display:inline-flex;align-items:center;gap:10px}
+  .hero .pill b{background:var(--navy);color:var(--cream);padding:4px 12px;border-radius:999px;font-size:13px}
+
+  section{padding:78px 0}
+  .kick{font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--green);margin-bottom:12px}
+  h2{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:-.8px;color:var(--navy);max-width:20ch;line-height:1.06}
+  .lead{color:var(--muted);font-size:18px;max-width:56ch;margin-top:14px;font-weight:600}
+
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px}
+  @media(max-width:760px){.cards{grid-template-columns:1fr}}
+  .card{background:#fff;border:2px solid var(--navy);border-radius:20px;padding:34px;position:relative;
+        box-shadow:6px 6px 0 var(--navy)}
+  .card .emoji{font-size:34px;margin-bottom:16px;display:block}
+  .card h3{font-size:23px;font-weight:900;color:var(--navy);margin-bottom:10px}
+  .card p{color:var(--muted);font-size:15.5px;font-weight:600}
+
+  .serve{background:var(--navy);color:var(--cream);border-radius:26px;padding:56px 46px;position:relative;overflow:hidden}
+  .serve:before{content:"";position:absolute;inset:0;opacity:.16;
+     background:repeating-linear-gradient(115deg,var(--pink) 0 7%,var(--orange) 7% 14%,var(--yellow) 14% 21%,var(--green) 21% 28%,transparent 28% 42%)}
+  .serve>*{position:relative}
+  .serve h2{color:var(--cream)}.serve .lead{color:rgba(246,244,236,.82)}
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .chip{background:rgba(246,244,236,.1);border:2px solid rgba(246,244,236,.28);padding:11px 20px;border-radius:999px;font-weight:800;font-size:15px}
+
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:28px 46px;margin-top:46px}
+  @media(max-width:760px){.why{grid-template-columns:1fr}}
+  .why .it{display:flex;gap:16px}
+  .why .n{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--green);color:#fff;font-weight:900;
+     display:grid;place-items:center;font-size:18px}
+  .why h4{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:4px}
+  .why p{color:var(--muted);font-size:15px;font-weight:600}
+
+  .contact{background:#fff;border:2px solid var(--navy);border-radius:26px;padding:60px 44px;text-align:center;
+     box-shadow:8px 8px 0 var(--green)}
+  .contact h2{margin:0 auto}.contact .lead{margin:14px auto 30px}
+  .sig{margin-top:24px;font-weight:800;color:var(--navy)}.sig span{color:var(--muted);font-weight:600}
+
+  footer{background:var(--navy);color:rgba(246,244,236,.75);padding:40px 0;font-weight:600;font-size:14px}
+  .foot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .foot img{height:30px;opacity:.95}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top"><img src="assets/logo-web.png" alt="Perfect Imports"></a>
+    <nav class="links">
+      <a href="#what">What we do</a>
+      <a href="#serve">Who we serve</a>
+      <a href="#why">Why us</a>
+      <a href="#contact" class="btn">Talk wholesale</a>
+    </nav>
+  </div>
+  <div class="stripe-bar stripes"></div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="badge"><span class="dot"></span>US Importer &amp; Distributor</span>
+    <h1>Premium Japanese matcha, <em>imported for US brands.</em></h1>
+    <p class="sub">Perfect Imports brings ceremonial-grade matcha and hojicha from Japan to American coffee
+      roasters, cafés, and beverage brands — with reliable wholesale supply and US import logistics.</p>
+    <div class="cta">
+      <a href="#contact" class="btn">Talk wholesale</a>
+      <a href="#what" class="btn alt">What we do →</a>
+    </div>
+    <div class="pill"><b>PerfectTed</b> the Japanese matcha brand from Dragons&rsquo; Den — now stocked &amp; shipped in the US.</div>
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <p class="kick">What we do</p>
+    <h2>Great product, and the logistics behind it.</h2>
+    <p class="lead">Two ways we help US food &amp; beverage businesses source and land premium product.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="emoji">🍵</span>
+        <h3>Matcha supply &amp; distribution</h3>
+        <p>We&rsquo;re the US importer of <b>PerfectTed</b> — the matcha brand from Dragons&rsquo; Den.
+          Ceremonial-grade Japanese matcha and hojicha in wholesale and pallet quantities, held stateside
+          for fast, reliable fulfillment to roasters, cafés, and CPG brands.</p>
+      </div>
+      <div class="card">
+        <span class="emoji">🚢</span>
+        <h3>US import &amp; 3PL logistics</h3>
+        <p>Beyond product, we help food &amp; beverage importers land and store inventory in the US —
+          bonded, climate-controlled, alcohol-licensed warehousing and fulfillment through our vetted
+          Florida 3PL partner, with duty-deferred storage available.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="serve" style="padding-top:16px">
+  <div class="wrap">
+    <div class="serve">
+      <p class="kick" style="color:var(--yellow)">Who we serve</p>
+      <h2>Built for the brands moving matcha in America.</h2>
+      <p class="lead">From single-location roasters to national beverage brands and food importers.</p>
+      <div class="chips">
+        <span class="chip">Specialty coffee roasters</span>
+        <span class="chip">Cafés &amp; tea houses</span>
+        <span class="chip">Matcha &amp; beverage brands</span>
+        <span class="chip">Fitness &amp; wellness</span>
+        <span class="chip">Food &amp; beverage importers</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why" style="padding-top:16px">
+  <div class="wrap">
+    <p class="kick">Why Perfect Imports</p>
+    <h2>Reliable supply, minus the overseas headaches.</h2>
+    <div class="why">
+      <div class="it"><div class="n">1</div><div>
+        <h4>US-based, responsive supply</h4>
+        <p>Inventory held stateside — no overseas lead-time surprises, and a real person who answers.</p></div></div>
+      <div class="it"><div class="n">2</div><div>
+        <h4>A brand your customers know</h4>
+        <p>PerfectTed is a Dragons&rsquo; Den matcha brand — recognizable product that moves off the shelf.</p></div></div>
+      <div class="it"><div class="n">3</div><div>
+        <h4>Bonded &amp; climate-controlled fulfillment</h4>
+        <p>Via our FDA-registered, FSVP-compliant 3PL partner: 72°F climate control, alcohol-licensed,
+          duty-deferred bonded storage.</p></div></div>
+      <div class="it"><div class="n">4</div><div>
+        <h4>Direct-from-Japan sourcing</h4>
+        <p>Authentic Japanese matcha and hojicha, sourced at origin for consistent, ceremonial-grade quality.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding-top:16px">
+  <div class="wrap">
+    <div class="contact">
+      <p class="kick">Get in touch</p>
+      <h2>Let&rsquo;s talk supply.</h2>
+      <p class="lead">Wholesale matcha, pallet quantities, or US warehousing for your imports — send a note
+        and we&rsquo;ll get right back to you.</p>
+      <a href="mailto:froy@perfect-imports.com?subject=Wholesale%20inquiry" class="btn">Email froy@perfect-imports.com</a>
+      <p class="sig">Froy Monteverde <span>· Managing Director, Perfect Imports</span></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <img src="assets/logo-web.png" alt="Perfect Imports">
+    <div style="text-align:right">© 2026 Perfect Imports · US importer &amp; distributor of premium Japanese matcha<br>
+      froy@perfect-imports.com · Fort Lauderdale, FL</div>
+  </div>
+</footer>
+
+</body>
+</html>

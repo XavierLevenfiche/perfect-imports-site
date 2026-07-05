@@ -1,246 +1,297 @@
 <!DOCTYPE html>
-<!-- Perfect Imports — v2 (PerfectTed-styled). assets/logo-web.png token replaced with the logo data URI by build.py.
-     [CONFIRM] before publish: compliance creds worded as the 3PL PARTNER's; real business mailing address in footer. -->
+<!-- Perfect Imports — "Meridian Green" editorial site (static, single file, no build step).
+     Design system: forest green / warm off-white / brass, Cormorant Garamond + DM Sans, no emojis.
+     Content is the lawyer-vetted, warehousing-led positioning. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfect Imports — Wholesale Japanese Matcha Stocked in the US</title>
-<meta name="description" content="Perfect Imports supplies premium Japanese matcha and hojicha to US roasters, cafés, and beverage brands, with stateside inventory and reliable import logistics.">
+<title>Perfect Imports — Bonded 3PL Warehousing &amp; Import Logistics, Fort Lauderdale</title>
+<meta name="description" content="Perfect Imports runs bonded, climate-controlled 3PL warehousing in Fort Lauderdale — duty-deferred storage and alcohol-licensed handling for US food, beverage, and spirits importers, plus verified market intelligence.">
+<link rel="icon" type="image/png" href="assets/logo-square-640.png">
+<meta property="og:title" content="Perfect Imports — Bonded 3PL Warehousing &amp; Import Logistics">
+<meta property="og:description" content="Bonded, duty-deferred warehousing in Fort Lauderdale for US importers of food, beverage, and spirits — plus verified market intelligence.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#17231b; --navy2:#1f3226; --cream:#f6f4ec; --green:#3faf5a; --green-d:#2f8a46;
-    --pink:#ff4d8d; --yellow:#ffce33; --orange:#ff7a3c; --ink:#17231b; --muted:#5f6f63; --line:#e7e3d6;
+    --forest:#16281d; --forest2:#1d3627; --cream:#f4f0e6; --cream2:#efe9db;
+    --brass:#c8a86a; --brass-d:#a8894f; --ink:#1a2a20; --muted:#5c6b60; --line:#e2ddcf;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-       color:var(--ink);background:var(--cream);line-height:1.55;-webkit-font-smoothing:antialiased}
+  body{font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
-  .wrap{max-width:1120px;margin:0 auto;padding:0 26px}
-  .stripes{background:repeating-linear-gradient(115deg,
-      var(--pink) 0 8%,var(--orange) 8% 16%,var(--yellow) 16% 24%,var(--green) 24% 32%,var(--navy2) 32% 40%)}
-  .btn{display:inline-block;background:var(--green);color:#fff;font-weight:800;font-size:15px;
-       padding:14px 26px;border-radius:999px;border:2px solid var(--green);transition:.15s;letter-spacing:.2px}
-  .btn:hover{background:var(--green-d);border-color:var(--green-d);transform:translateY(-2px)}
-  .btn.alt{background:transparent;color:var(--navy);border-color:var(--navy)}
-  .btn.alt:hover{background:var(--navy);color:var(--cream)}
-  .text-link{color:var(--green-d);font-weight:900;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+  .serif{font-family:"Cormorant Garamond",Georgia,serif}
+  .kick{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+        color:var(--brass-d);font-weight:500}
+  .btn{display:inline-block;font-weight:700;font-size:15px;padding:15px 28px;border-radius:8px;transition:.18s;letter-spacing:.2px}
+  .btn.solid{background:var(--brass);color:var(--forest);border:1.5px solid var(--brass)}
+  .btn.solid:hover{background:var(--brass-d);border-color:var(--brass-d)}
+  .btn.ghost{background:transparent;color:var(--forest);border:1.5px solid rgba(22,40,29,.35)}
+  .btn.ghost:hover{border-color:var(--forest);background:rgba(22,40,29,.04)}
+  .btn.on-dark{background:var(--brass);color:var(--forest);border:1.5px solid var(--brass)}
+  .btn.on-dark:hover{background:#d8bd85;border-color:#d8bd85}
+  .link{color:var(--brass-d);font-weight:700;border-bottom:1.5px solid var(--brass);padding-bottom:1px}
 
-  header{position:sticky;top:0;z-index:60;background:var(--navy)}
-  .nav{display:flex;align-items:center;justify-content:space-between;height:74px}
-  .nav img{height:40px;width:auto;display:block}
-  .nav .links{display:flex;gap:28px;align-items:center;color:var(--cream);font-weight:700;font-size:15px}
-  .nav .links a:not(.btn){opacity:.85}.nav .links a:not(.btn):hover{opacity:1}
-  @media(max-width:720px){.nav .links a:not(.btn){display:none}}
-  .stripe-bar{height:7px}
+  /* header */
+  header{position:sticky;top:0;z-index:60;background:var(--forest);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:72px;gap:20px}
+  .brand{display:flex;align-items:center;gap:12px;color:var(--cream)}
+  .brand img{height:34px;width:auto;display:block}
+  .brand .bt{line-height:1.1}.brand .bt b{font-family:"Cormorant Garamond",serif;font-size:20px;font-weight:700;letter-spacing:.3px}
+  .brand .bt span{display:block;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.18em;color:rgba(244,240,230,.6);text-transform:uppercase}
+  .nav .links{display:flex;gap:30px;align-items:center;color:rgba(244,240,230,.82);font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+  .nav .links a:not(.btn):hover{color:var(--cream)}
+  .nav .btn.on-dark{padding:11px 20px;font-size:13px}
+  @media(max-width:820px){.nav .links a:not(.btn){display:none}}
 
   /* hero */
-  .hero{background:var(--cream);padding:76px 0 60px;position:relative;overflow:hidden;text-align:center}
-  .hero .wrap{display:flex;flex-direction:column;align-items:center}
-  .badge{display:inline-flex;align-items:center;gap:9px;background:#fff;border:2px solid var(--navy);
-         border-radius:999px;padding:8px 16px;font-weight:800;font-size:13px;color:var(--navy);margin-bottom:24px}
-  .badge .dot{width:9px;height:9px;border-radius:50%;background:var(--green)}
-  h1{font-size:clamp(38px,6vw,66px);line-height:1.02;letter-spacing:0;font-weight:900;max-width:15ch;color:var(--navy)}
-  h1 em{font-style:normal;color:var(--green);position:relative;white-space:nowrap}
-  h1 em:after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:8px;border-radius:6px;
-     background:var(--green);opacity:.25}
-  .hero .sub{font-size:clamp(17px,2vw,21px);color:var(--muted);max-width:54ch;margin:24px auto 32px;font-weight:600}
-  .hero .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-  .hero .proof{margin-top:34px;color:var(--muted);font-size:15px;display:grid;justify-items:center;gap:7px;
-     max-width:620px;line-height:1.35;font-weight:700}
-  .hero .proof b{background:var(--navy);color:var(--cream);padding:4px 12px;border-radius:999px;font-size:13px}
-  .hero .proof .proof-line{color:var(--navy);font-size:16px;font-weight:850}
-  .hero .proof .stocked{font-size:14px}
-  @media(max-width:620px){.hero .proof{font-size:14px;max-width:30ch}.hero .proof .proof-line{font-size:15px}.hero{padding-top:54px}}
+  .hero{background:var(--cream);padding:92px 0 84px;position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;right:-140px;top:-120px;width:520px;height:520px;border-radius:50%;
+     background:radial-gradient(circle at 30% 30%,rgba(200,168,106,.16),transparent 62%);pointer-events:none}
+  .hero .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+  @media(max-width:900px){.hero .grid{grid-template-columns:1fr;gap:36px}}
+  .hero h1{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:clamp(44px,6vw,76px);line-height:1.02;
+     color:var(--forest);margin:18px 0 0;letter-spacing:-.5px}
+  .hero h1 em{font-style:italic;color:var(--brass-d)}
+  .hero .sub{font-size:clamp(17px,1.6vw,20px);color:var(--muted);max-width:52ch;margin:26px 0 34px;font-weight:500}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .panel{background:var(--forest);color:var(--cream);border-radius:18px;padding:34px;position:relative;overflow:hidden}
+  .panel:before{content:"";position:absolute;inset:0;opacity:.5;
+     background:radial-gradient(circle at 80% 10%,rgba(200,168,106,.22),transparent 55%)}
+  .panel>*{position:relative}
+  .panel .plabel{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--brass)}
+  .panel h3{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;margin:6px 0 18px}
+  .panel .facts{display:grid;gap:12px}
+  .panel .facts div{display:flex;gap:11px;font-size:14.5px;color:rgba(244,240,230,.9);font-weight:500;align-items:flex-start}
+  .panel .facts b{color:var(--brass);font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.05em;flex:0 0 auto;margin-top:2px}
 
-  section{padding:78px 0}
-  .kick{font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--green);margin-bottom:12px}
-  h2{font-size:clamp(28px,4vw,42px);font-weight:900;letter-spacing:0;color:var(--navy);max-width:20ch;line-height:1.06}
-  .lead{color:var(--muted);font-size:18px;max-width:56ch;margin-top:14px;font-weight:600}
+  section{padding:86px 0}
+  h2{font-family:"Cormorant Garamond",serif;font-size:clamp(32px,4.4vw,50px);font-weight:700;color:var(--forest);
+     line-height:1.05;max-width:20ch;letter-spacing:-.4px;margin-top:12px}
+  .lead{color:var(--muted);font-size:18px;max-width:58ch;margin-top:16px;font-weight:500}
 
-  .cards{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:46px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+  .cards.three{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:900px){.cards.three{grid-template-columns:1fr}}
   @media(max-width:760px){.cards{grid-template-columns:1fr}}
-  .card{background:#fff;border:2px solid var(--navy);border-radius:20px;padding:34px;position:relative;
-        box-shadow:6px 6px 0 var(--navy)}
-  .card .emoji{font-size:34px;margin-bottom:16px;display:block}
-  .card h3{font-size:23px;font-weight:900;color:var(--navy);margin-bottom:10px}
-  .card p{color:var(--muted);font-size:15.5px;font-weight:600}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:36px;transition:.18s}
+  .card:hover{border-color:var(--brass);box-shadow:0 12px 30px rgba(22,40,29,.06);transform:translateY(-2px)}
+  .card .cnum{font-family:"DM Mono",monospace;font-size:12px;color:var(--brass-d);letter-spacing:.15em}
+  .card h3{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;color:var(--forest);margin:10px 0 12px}
+  .card p{color:var(--muted);font-size:15.5px;font-weight:500}
+  .card .price{font-family:"Cormorant Garamond",serif;font-size:30px;font-weight:700;color:var(--forest)}
   .card .btn{margin-top:22px}
+  .aside{margin-top:30px;color:var(--muted);font-size:15.5px;font-weight:500;max-width:74ch;
+     border-left:3px solid var(--brass);padding:4px 0 4px 18px}
 
-  .serve{background:var(--navy);color:var(--cream);border-radius:26px;padding:56px 46px;position:relative;overflow:hidden}
-  .serve:before{content:"";position:absolute;inset:0;opacity:.16;
-     background:repeating-linear-gradient(115deg,var(--pink) 0 7%,var(--orange) 7% 14%,var(--yellow) 14% 21%,var(--green) 21% 28%,transparent 28% 42%)}
-  .serve>*{position:relative}
-  .serve h2{color:var(--cream)}.serve .lead{color:rgba(246,244,236,.82)}
-  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-  .chip{background:rgba(246,244,236,.1);border:2px solid rgba(246,244,236,.28);padding:11px 20px;border-radius:999px;font-weight:800;font-size:15px}
-
-  .why{display:grid;grid-template-columns:1fr 1fr;gap:28px 46px;margin-top:46px}
+  .band{background:var(--forest);color:var(--cream)}
+  .band h2{color:var(--cream)}.band .lead{color:rgba(244,240,230,.8)}.band .kick{color:var(--brass)}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:36px 52px;margin-top:52px}
   @media(max-width:760px){.why{grid-template-columns:1fr}}
-  .why .it{display:flex;gap:16px}
-  .why .n{flex:0 0 auto;width:42px;height:42px;border-radius:12px;background:var(--green);color:#fff;font-weight:900;
-     display:grid;place-items:center;font-size:18px}
-  .why h4{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:4px}
-  .why p{color:var(--muted);font-size:15px;font-weight:600}
+  .why .it{display:flex;gap:18px}
+  .why .n{flex:0 0 auto;font-family:"Cormorant Garamond",serif;font-size:30px;font-weight:700;color:var(--brass);line-height:1;width:34px}
+  .why h4{font-family:"Cormorant Garamond",serif;font-size:22px;font-weight:700;color:var(--cream);margin-bottom:6px}
+  .why p{color:rgba(244,240,230,.78);font-size:15px;font-weight:500}
+  .chips{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+  .chip{border:1px solid rgba(244,240,230,.28);padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;color:rgba(244,240,230,.92)}
 
-  .contact{background:#fff;border:2px solid var(--navy);border-radius:26px;padding:60px 44px;text-align:center;
-     box-shadow:8px 8px 0 var(--green)}
-  .contact h2{margin:0 auto}.contact .lead{margin:14px auto 30px}
-  .sig{margin-top:24px;font-weight:800;color:var(--navy)}.sig span{color:var(--muted);font-weight:600}
+  .contact{text-align:center;padding-top:8px}
+  .contact h2{margin:12px auto 0}.contact .lead{margin:16px auto 32px}
+  .sig{margin-top:26px;font-weight:700;color:var(--forest)}.sig span{color:var(--muted);font-weight:500}
+  .fine{margin-top:8px;color:var(--muted);font-size:13px;font-weight:500}
 
-  footer{background:var(--navy);color:rgba(246,244,236,.75);padding:40px 0;font-weight:600;font-size:14px}
-  .foot{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-  .foot img{height:30px;opacity:.95}
+  footer{background:var(--forest);color:rgba(244,240,230,.62);padding:44px 0;font-size:13.5px;font-weight:500}
+  .foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:flex-end}
+  .foot .cols{display:flex;gap:56px;flex-wrap:wrap}
+  .foot .col b{display:block;font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:10px;font-weight:500}
+  .foot .col a{display:block;color:rgba(244,240,230,.78);padding:3px 0}.foot .col a:hover{color:var(--cream)}
+  .foot .base{width:100%;border-top:1px solid rgba(255,255,255,.08);margin-top:26px;padding-top:20px;color:rgba(244,240,230,.5)}
 </style>
 </head>
-<body>
+<body id="top">
 
 <header>
   <div class="wrap nav">
-    <a href="#top"><img src="assets/logo-web.png" alt="Perfect Imports"></a>
+    <a class="brand" href="#top">
+      <img src="assets/logo-web.png" alt="Perfect Imports">
+      <span class="bt"><b>Perfect Imports</b><span>LLC &middot; Fort Lauderdale, FL</span></span>
+    </a>
     <nav class="links">
-      <a href="#what">What we do</a>
-      <a href="#serve">Who we serve</a>
+      <a href="#what">Warehousing</a>
       <a href="#why">Why us</a>
+      <a href="#serve">Who we serve</a>
       <a href="#intelligence">Intelligence</a>
-      <a href="#contact" class="btn">Talk wholesale</a>
+      <a href="#contact" class="btn on-dark">Make an inquiry</a>
     </nav>
   </div>
-  <div class="stripe-bar stripes"></div>
 </header>
 
-<section class="hero" id="top">
-  <div class="wrap">
-    <span class="badge"><span class="dot"></span>US Importer &amp; Distributor</span>
-    <h1>Wholesale Japanese matcha, <em>stocked in the US.</em></h1>
-    <p class="sub">Perfect Imports supplies premium Japanese matcha and hojicha to US roasters, cafés,
-      and beverage brands, with stateside inventory, wholesale quantities, and reliable import logistics.</p>
-    <div class="cta">
-      <a href="#contact" class="btn">Talk wholesale</a>
-      <a href="#what" class="btn alt">View supply options</a>
+<section class="hero">
+  <div class="wrap grid">
+    <div>
+      <p class="kick">Fort Lauderdale, FL &middot; Bonded 3PL Warehousing</p>
+      <h1>Bonded warehousing &amp; US distribution for <em>importers.</em></h1>
+      <p class="sub">I&rsquo;m Froy at Perfect Imports. We run bonded, climate-controlled 3PL warehousing in
+        Fort Lauderdale &mdash; duty-deferred storage, alcohol-licensed handling, and hands-on fulfillment
+        for importers of food, beverage, and spirits.</p>
+      <div class="cta">
+        <a href="#contact" class="btn solid">Talk to us</a>
+        <a href="#what" class="btn ghost">How duty deferral works</a>
+      </div>
     </div>
-    <div class="proof">
-      <b>PerfectTed</b>
-      <span class="proof-line">Featured on
-        <a class="text-link" href="https://www.youtube.com/watch?v=RsTaThjbZGk" target="_blank" rel="noopener">Dragons&rsquo; Den</a>,
-        the UK&rsquo;s answer to Shark Tank.</span>
-      <span class="stocked">Now stocked and shipped from the US.</span>
+    <div class="panel">
+      <p class="plabel">CBP Bonded Premises</p>
+      <h3>What the facility holds</h3>
+      <div class="facts">
+        <div><b>19 CFR 19</b><span>Duty-deferred bonded storage</span></div>
+        <div><b>FL</b><span>Third-party alcohol license</span></div>
+        <div><b>FDA</b><span>Food-facility registered</span></div>
+        <div><b>72&deg;F</b><span>Climate-controlled</span></div>
+        <div><b>3PL</b><span>Pallet-in / pallet-out fulfillment</span></div>
+      </div>
     </div>
   </div>
 </section>
 
 <section id="what">
   <div class="wrap">
-    <p class="kick">What we do</p>
-    <h2>Great product, and the logistics behind it.</h2>
-    <p class="lead">Two ways we help US food &amp; beverage businesses source and land premium product.</p>
+    <p class="kick">01 &mdash; What we do</p>
+    <h2>Land it, store it, and ship it &mdash; with duty timed to withdrawal.</h2>
+    <p class="lead">We run our own bonded warehouse and handle the logistics around it, so your inventory
+      lands, is entered into bonded storage, and ships when you need it.</p>
     <div class="cards">
       <div class="card">
-        <span class="emoji">🍵</span>
-        <h3>Matcha supply &amp; distribution</h3>
-        <p>We&rsquo;re the US importer of <b>PerfectTed</b> — the matcha brand featured on
-          <a class="text-link" href="https://www.youtube.com/watch?v=RsTaThjbZGk" target="_blank" rel="noopener">Dragons&rsquo; Den</a>
-          and built for mainstream café, retail, and beverage programs.
-          Ceremonial-grade Japanese matcha and hojicha in wholesale and pallet quantities, held stateside
-          for fast, reliable fulfillment to roasters, cafés, and CPG brands.</p>
+        <span class="cnum">A</span>
+        <h3>Bonded, duty-deferred warehousing</h3>
+        <p>We run bonded, climate-controlled, alcohol-licensed warehousing in Fort Lauderdale. Eligible
+          goods store duty-deferred in CBP bonded premises (19 CFR Part 19) &mdash; duties are generally
+          paid when goods are withdrawn for U.S. consumption, not all up front at landing.</p>
       </div>
       <div class="card">
-        <span class="emoji">🚢</span>
-        <h3>US import &amp; 3PL logistics</h3>
-        <p>Beyond product, we help food &amp; beverage importers land and store inventory in the US —
-          bonded, climate-controlled, alcohol-licensed warehousing and fulfillment through our vetted
-          Florida 3PL partner, with duty-deferred storage available.</p>
+        <span class="cnum">B</span>
+        <h3>Import 3PL &amp; distribution</h3>
+        <p>Pallet-in / pallet-out with racking, FDA food-facility registered, and climate-controlled. We
+          help importers land, store, and move inventory into U.S. retail and foodservice &mdash; with one
+          operator who answers directly.</p>
       </div>
     </div>
+    <p class="aside">We also work with <b>PerfectTed</b> matcha (featured on
+      <a class="link" href="https://www.youtube.com/watch?v=RsTaThjbZGk" target="_blank" rel="noopener">Dragons&rsquo; Den</a>,
+      the UK&rsquo;s answer to Shark Tank) &mdash; ask us about US wholesale matcha and hojicha supply.</p>
   </div>
 </section>
 
-<section id="serve" style="padding-top:16px">
+<section id="why" class="band">
   <div class="wrap">
-    <div class="serve">
-      <p class="kick" style="color:var(--yellow)">Who we serve</p>
-      <h2>Built for the brands moving matcha in America.</h2>
-      <p class="lead">From single-location roasters to national beverage brands and food importers.</p>
-      <div class="chips">
-        <span class="chip">Specialty coffee roasters</span>
-        <span class="chip">Cafés &amp; tea houses</span>
-        <span class="chip">Matcha &amp; beverage brands</span>
-        <span class="chip">Fitness &amp; wellness</span>
-        <span class="chip">Food &amp; beverage importers</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="why" style="padding-top:16px">
-  <div class="wrap">
-    <p class="kick">Why Perfect Imports</p>
-    <h2>Reliable supply, minus the overseas headaches.</h2>
+    <p class="kick">02 &mdash; Why Perfect Imports</p>
+    <h2>Operator-run warehousing you can actually reach.</h2>
     <div class="why">
       <div class="it"><div class="n">1</div><div>
-        <h4>US-based, responsive supply</h4>
-        <p>Inventory held stateside — no overseas lead-time surprises, and a real person who answers.</p></div></div>
+        <h4>Operator-level follow-through</h4>
+        <p>We run the facility ourselves &mdash; one point of contact who answers, not a ticket queue.</p></div></div>
       <div class="it"><div class="n">2</div><div>
-        <h4>A brand your customers know</h4>
-        <p>PerfectTed brings recognizable consumer proof for cafés, retailers, and beverage programs.</p></div></div>
+        <h4>Duty timed to withdrawal, not landing</h4>
+        <p>Eligible goods sit in bonded storage with duty generally paid on withdrawal for U.S.
+          consumption &mdash; so you&rsquo;re not paying eligible duties all at once when it lands.</p></div></div>
       <div class="it"><div class="n">3</div><div>
-        <h4>Bonded &amp; climate-controlled fulfillment</h4>
-        <p>Via our FDA-registered, FSVP-compliant 3PL partner: 72°F climate control, alcohol-licensed,
-          duty-deferred bonded storage.</p></div></div>
+        <h4>Bonded, licensed &amp; climate-controlled</h4>
+        <p>72&deg;F climate control, a Florida third-party alcohol license, FDA food-facility registration,
+          and duty-deferred CBP bonded premises.</p></div></div>
       <div class="it"><div class="n">4</div><div>
-        <h4>Direct-from-Japan sourcing</h4>
-        <p>Authentic Japanese matcha and hojicha, sourced at origin for consistent, ceremonial-grade quality.</p></div></div>
+        <h4>US-based and responsive</h4>
+        <p>Inventory landed and held stateside in Fort Lauderdale &mdash; ready when you are, not weeks
+          out on the water, and a real person who picks up.</p></div></div>
     </div>
   </div>
 </section>
 
-<section id="intelligence" style="padding-top:16px">
+<section id="serve">
   <div class="wrap">
-    <p class="kick">Data &amp; Intelligence</p>
-    <h2>The data behind our pipeline — packaged for yours.</h2>
-    <p class="lead">We run an automated sourcing, verification, and market-intelligence engine for our own wholesale business. The same outputs are available as products.</p>
-    <div class="cards">
-      <div class="card">
-        <span class="emoji">📇</span>
-        <h3>Verified Buyer Lists</h3>
-        <p>US specialty coffee roasters &amp; cafés: 158 verified wholesale buyer contacts (36 named decision-makers + verified primary company inboxes), mailbox-verified monthly, &lt;3% expected bounce. $149 — includes a refreshed copy at 30 days.</p>
-        <a class="btn" href="https://perfectimports.lemonsqueezy.com/checkout/buy/de0a553e-ea48-4ead-b29b-94d98510d875" target="_blank" rel="noopener">Get the list →</a>
-      </div>
-      <div class="card">
-        <span class="emoji">📊</span>
-        <h3>Market Opportunity Briefs</h3>
-        <p>Evidence-cited import-market analysis: tariff treatment, competition mapping, wholesale price anchors, pilot economics. July 2026 edition: Japanese specialty imports. $99.</p>
-        <a class="btn" href="https://perfectimports.lemonsqueezy.com/checkout/buy/1f2bd545-abf1-41d8-988b-0ab87e0f04bf" target="_blank" rel="noopener">Get the brief →</a>
-      </div>
-      <div class="card">
-        <span class="emoji">🎁</span>
-        <h3>Free Sample</h3>
-        <p>10 verified roaster contacts, free. See the quality before you buy.</p>
-        <a class="btn" href="https://perfectimports.lemonsqueezy.com/checkout/buy/823bfb83-db73-4ee7-9ec5-3392d9f124ba" target="_blank" rel="noopener">Get the free sample →</a>
-      </div>
+    <p class="kick">03 &mdash; Who we serve</p>
+    <h2>Built for importers landing product in the US.</h2>
+    <p class="lead">From spirits and wine importers to specialty-food brands entering the American market.</p>
+    <div class="chips" style="margin-top:30px">
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Alcohol &amp; spirits importers</span>
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Wine &amp; sake distributors</span>
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Food &amp; beverage importers</span>
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Olive oil, coffee &amp; chocolate brands</span>
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Matcha &amp; specialty tea brands</span>
     </div>
   </div>
 </section>
 
-<section id="contact" style="padding-top:16px">
+<section id="intelligence" style="background:var(--cream2)">
   <div class="wrap">
-    <div class="contact">
-      <p class="kick">Get in touch</p>
-      <h2>Let&rsquo;s talk supply.</h2>
-      <p class="lead">Wholesale matcha, pallet quantities, or US warehousing for your imports — send a note
-        and we&rsquo;ll get right back to you.</p>
-      <a href="mailto:froy@perfect-imports.com?subject=Wholesale%20inquiry" class="btn">Email froy@perfect-imports.com</a>
-      <p class="sig">Froy Monteverde <span>· Managing Director, Perfect Imports</span></p>
+    <p class="kick">04 &mdash; Data &amp; Intelligence</p>
+    <h2>The data behind our pipeline &mdash; packaged for yours.</h2>
+    <p class="lead">We run an automated sourcing, verification, and market-intelligence engine for our own
+      import business. The same outputs are available as products.</p>
+    <div class="cards three">
+      <div class="card">
+        <span class="cnum">Verified Buyer List</span>
+        <p class="price">$149</p>
+        <p>US specialty coffee roasters &amp; cafés &mdash; 158 verified wholesale accounts. Each record:
+          company, category, city/state, website, and a monitored role inbox (buying@ / wholesale@),
+          with the date it was verified. Mailbox-verified, &lt;3% expected bounce. Refreshed copy at 30 days.</p>
+        <a class="btn solid" href="https://perfectimports.lemonsqueezy.com/checkout/buy/de0a553e-ea48-4ead-b29b-94d98510d875" target="_blank" rel="noopener">Get the list &rarr;</a>
+      </div>
+      <div class="card">
+        <span class="cnum">Market Opportunity Brief</span>
+        <p class="price">$99</p>
+        <p>Evidence-cited import-market analysis: tariff treatment, competition mapping, wholesale price
+          anchors, pilot economics. July 2026 edition: Japanese specialty imports.</p>
+        <a class="btn solid" href="https://perfectimports.lemonsqueezy.com/checkout/buy/1f2bd545-abf1-41d8-988b-0ab87e0f04bf" target="_blank" rel="noopener">Get the brief &rarr;</a>
+      </div>
+      <div class="card">
+        <span class="cnum">Free Sample</span>
+        <p class="price">Free</p>
+        <p>10 verified roaster accounts, free. See the exact fields and format before you buy.</p>
+        <a class="btn ghost" href="https://perfectimports.lemonsqueezy.com/checkout/buy/823bfb83-db73-4ee7-9ec5-3392d9f124ba" target="_blank" rel="noopener">Get the free sample &rarr;</a>
+      </div>
     </div>
+    <p class="aside">Company-level business data only &mdash; no personal contacts. Business-role contact data
+      for lawful B2B outreach by one organization; no resale; buyer is responsible for outreach-law compliance.
+      <a href="removal.html" style="color:var(--brass-d)">Request removal &rarr;</a></p>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap contact">
+    <p class="kick">Get in touch</p>
+    <h2>Let&rsquo;s talk warehousing.</h2>
+    <p class="lead" style="margin-left:auto;margin-right:auto">Bonded storage, duty-deferred warehousing, or
+      US fulfillment for your imports &mdash; send a note and I&rsquo;ll get right back to you.</p>
+    <a href="mailto:froy@perfect-imports.com?subject=Warehousing%20inquiry" class="btn solid">Email froy@perfect-imports.com</a>
+    <p class="sig">Froy Monteverde <span>&middot; Managing Director, Perfect Imports</span></p>
+    <p class="fine">Perfect Imports LLC &middot; 3255 SW 11th Ave, Fort Lauderdale, FL 33315</p>
   </div>
 </section>
 
 <footer>
   <div class="wrap foot">
-    <img src="assets/logo-web.png" alt="Perfect Imports">
-    <div style="text-align:right">© 2026 Perfect Imports · US importer &amp; distributor of premium Japanese matcha<br>
-      froy@perfect-imports.com · Perfect Imports LLC, 3255 SW 11th Ave, Fort Lauderdale, FL 33315</div>
+    <div class="brand" style="align-items:flex-start">
+      <img src="assets/logo-web.png" alt="Perfect Imports" style="height:30px">
+    </div>
+    <div class="cols">
+      <div class="col"><b>Explore</b>
+        <a href="#what">Warehousing</a>
+        <a href="#why">Why us</a>
+        <a href="#serve">Who we serve</a>
+        <a href="#intelligence">Intelligence</a>
+      </div>
+      <div class="col"><b>Contact</b>
+        <a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a>
+        <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">Froy Monteverde, Managing Director</span>
+        <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">3255 SW 11th Ave, Fort Lauderdale, FL 33315</span>
+      </div>
+    </div>
+    <div class="base">© 2026 Perfect Imports LLC · US import, bonded 3PL warehousing &amp; distribution · Fort Lauderdale, Florida</div>
   </div>
 </footer>
 

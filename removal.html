@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- Perfect Imports — data removal / suppression request page. Matches Meridian Green design system. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Data Removal — Perfect Imports</title>
+<meta name="description" content="Request removal of your company record from Perfect Imports' current and future business datasets. Removal requests are used only to suppress your company from future builds.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/logo-square-640.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#16281d; --forest2:#1d3627; --cream:#f4f0e6; --cream2:#efe9db;
+    --brass:#c8a86a; --brass-d:#a8894f; --ink:#1a2a20; --muted:#5c6b60; --line:#e2ddcf;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+       color:var(--ink);background:var(--cream);line-height:1.65;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:760px;margin:0 auto;padding:0 28px}
+  header{position:sticky;top:0;z-index:60;background:var(--forest);border-bottom:1px solid rgba(255,255,255,.06)}
+  .nav{max-width:1140px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:72px}
+  .brand{display:flex;align-items:center;gap:12px;color:var(--cream)}
+  .brand img{height:34px;width:auto;display:block}
+  .brand b{font-family:"Cormorant Garamond",serif;font-size:20px;font-weight:700;letter-spacing:.3px}
+  .nav .back{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,240,230,.82)}
+  .nav .back:hover{color:var(--cream)}
+  main{padding:70px 0 90px}
+  .kick{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass-d);font-weight:500}
+  h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:clamp(34px,5vw,52px);line-height:1.05;color:var(--forest);margin:14px 0 22px;letter-spacing:-.5px}
+  p{color:var(--muted);font-weight:500;margin:0 0 18px;font-size:17px}
+  p strong{color:var(--ink)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 32px;margin:30px 0}
+  .card h2{font-family:"Cormorant Garamond",serif;font-size:26px;font-weight:700;color:var(--forest);margin:0 0 10px}
+  ol{margin:0 0 4px 20px;color:var(--muted);font-weight:500;font-size:17px}
+  ol li{margin:0 0 8px}
+  .btn{display:inline-block;font-weight:700;font-size:15px;padding:15px 28px;border-radius:8px;transition:.18s;letter-spacing:.2px;
+       background:var(--brass);color:var(--forest);border:1.5px solid var(--brass)}
+  .btn:hover{background:var(--brass-d);border-color:var(--brass-d)}
+  .fine{font-size:14px;color:var(--muted);border-left:3px solid var(--brass);padding:4px 0 4px 16px;margin-top:34px}
+  footer{background:var(--forest);color:rgba(244,240,230,.7);font-size:13px;padding:26px 0}
+  footer .wrap{max-width:1140px}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="index.html"><img src="assets/logo-web.png" alt="Perfect Imports"><b>Perfect Imports</b></a>
+    <a class="back" href="index.html">&larr; Back to site</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="kick">Data &amp; Intelligence</p>
+    <h1>Request removal from our datasets</h1>
+    <p>Perfect Imports publishes <strong>company-level business data only</strong> — company name, website,
+      category, city/state, and a public business role inbox (such as buying@ or wholesale@). We do not
+      publish personal contacts: no individual names, personal emails, phone numbers, or social profiles.</p>
+    <p>If your company would prefer not to appear in our current or future datasets, we&rsquo;ll remove it —
+      no reason required.</p>
+
+    <div class="card">
+      <h2>How to request removal</h2>
+      <p>Email us from any address, or with your company details, and include:</p>
+      <ol>
+        <li>Your company name</li>
+        <li>Your company website or the role inbox in question</li>
+      </ol>
+      <p style="margin-bottom:24px">We&rsquo;ll confirm and suppress your company, typically within a few business days.</p>
+      <a class="btn" href="mailto:removal@perfect-imports.com?subject=Data%20removal%20request&body=Company%20name%3A%0ACompany%20website%20or%20role%20inbox%3A%0A">Email removal@perfect-imports.com</a>
+    </div>
+
+    <p class="fine">We use removal requests <strong>only to suppress your company from future dataset builds</strong>.
+      The information you send is never used for enrichment, outreach, or marketing, and is not resold. Your company
+      is added to a permanent suppression list that our pipeline checks on every build.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 Perfect Imports LLC · Fort Lauderdale, Florida · <a href="index.html" style="color:var(--brass)">perfect-imports.com</a></div>
+</footer>
+</body>
+</html>

@@ -61,6 +61,10 @@ git add -A && git commit -m "update copy" && git push
 ```
 Live in ~30 seconds. No Squarespace, ever.
 
-## Before you go fully live — confirm 2 things in index.html
-1. Compliance line (72°F / FDA / FSVP / alcohol-licensed / bonded) is worded as your **3PL partner's** — keep it that way unless Perfect Imports itself holds those.
-2. Footer address — replace "Fort Lauderdale, FL" with a real business mailing address (not a home address).
+## Before you go fully live — confirm these in index.html
+1. ✅ DONE 2026-07-05 — facility/license claims reworded to partner framing ("provide" / "operate out of
+   a CBP-bonded warehouse" / "third-party alcohol-licensed handling"); keep it that way unless Perfect
+   Imports itself holds those credentials.
+2. ✅ DONE — footer carries the real business address (3255 SW 11th Ave, Fort Lauderdale, FL 33315).
+3. ⚠ OPEN — confirm the `removal@perfect-imports.com` alias exists in Workspace Admin (removal.html's
+   mailto depends on it; requests bounce if the alias is missing — 30-second add).

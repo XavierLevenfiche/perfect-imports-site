@@ -66,5 +66,6 @@ Live in ~30 seconds. No Squarespace, ever.
    a CBP-bonded warehouse" / "third-party alcohol-licensed handling"); keep it that way unless Perfect
    Imports itself holds those credentials.
 2. ✅ DONE — footer carries the real business address (3255 SW 11th Ave, Fort Lauderdale, FL 33315).
-3. ⚠ OPEN — confirm the `removal@perfect-imports.com` alias exists in Workspace Admin (removal.html's
-   mailto depends on it; requests bounce if the alias is missing — 30-second add).
+3. ✅ RESOLVED 2026-07-05 — `removal@` alias confirmed NOT to exist (operator + API check);
+   removal.html mailto points at froy@perfect-imports.com so requests actually arrive. If you
+   later add the alias in Workspace Admin (30s), flip the mailto back for a cleaner channel.

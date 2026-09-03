@@ -3,7 +3,9 @@
 **Live at** https://perfect-imports.com (+ `www`, + `perfect-imports.pages.dev`).
 
 **Host: Cloudflare Pages, project `perfect-imports`, direct upload.**
-Account `56a658078f56eb8fa8a4fb6b40badbda` (froy@perfect-imports.com).
+Cloudflare account: the one owned by froy@perfect-imports.com. (The account ID is
+deliberately not written down here - this file has historically been served publicly.
+Read it from the dashboard URL when you need it.)
 
 > This document previously described GitHub Pages. That has not been the host since the
 > Cloudflare migration on 2026-07-19. The stale version caused a production incident on

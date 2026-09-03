@@ -1,0 +1,8 @@
+# Perfect Imports — perfect-imports.com
+User-agent: *
+Allow: /
+
+# Suppression/removal page carries no commercial content and should not rank.
+Disallow: /removal.html
+
+Sitemap: https://perfect-imports.com/sitemap.xml

@@ -135,6 +135,14 @@
   .cards.three .price{margin:6px 0 16px}
   .cards.three .card .copy{flex:1 1 auto;min-height:132px}
   .cards.three .card .btn{margin-top:auto;align-self:flex-start}
+  .product-inquiry{display:grid;gap:10px;margin-top:auto;padding-top:24px}
+  .product-inquiry label{display:grid;gap:5px;color:var(--muted);font-size:12px;font-weight:600}
+  .product-inquiry input[type="email"]{width:100%;padding:.7rem .8rem;border:1px solid rgba(0,0,0,.2);
+     border-radius:.4rem;background:#fff;color:var(--ink);font:inherit}
+  .product-inquiry input[type="email"]:focus-visible{outline:2px solid var(--brass-d);outline-offset:2px}
+  .cards.three .product-inquiry .btn{margin-top:0;justify-self:start}
+  .product-inquiry .inquiry-status{min-height:1.2em;font-size:12px;line-height:1.4}
+  .product-fallback .btn{margin-top:10px}
   @media(max-width:900px){.cards.three .card .copy{min-height:0}}
 
   .band{background:var(--forest);color:var(--cream)}
@@ -168,6 +176,44 @@
      color:rgba(245,241,232,.66);font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.02em}
   @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
 </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "additionalType": "https://schema.org/Warehouse",
+    "name": "Perfect Imports LLC",
+    "url": "https://perfect-imports.com/",
+    "email": "froy@perfect-imports.com",
+    "image": "https://perfect-imports.com/assets/cover-banner.png",
+    "description": "Bonded, climate-controlled 3PL warehousing and US distribution in Fort Lauderdale for importers of food, beverage and consumer goods. Duty-deferred storage timed to withdrawal.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "3259 SW 11th Ave",
+      "addressLocality": "Fort Lauderdale",
+      "addressRegion": "FL",
+      "postalCode": "33315",
+      "addressCountry": "US"
+    },
+    "areaServed": [
+      {"@type": "Country", "name": "United States"},
+      {"@type": "State", "name": "Florida"}
+    ],
+    "knowsAbout": [
+      "bonded warehousing", "3PL warehousing", "duty-deferred storage",
+      "FDA registered food storage", "import logistics", "customs bonded warehouse"
+    ]
+  }
+  </script>
+  <!-- Google tag (gtag.js) - Google Ads AW-18417846877. Added 2026-08-29 for the
+       bonded-warehousing search test. Conversion fires on /thanks/, which both forms
+       redirect to on success. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18417846877"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18417846877');
+  </script>
 </head>
 <body id="top">
 
@@ -297,26 +343,53 @@
           role inbox (info@ / wholesale@ &mdash; never personal contacts), verification tier, and a public
           source URL with the date it was verified. Invalid company records replaced (10%+ error
           threshold). Refreshed copy at 30 days.</p></div>
-        <a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Verified%20Buyer%20List%20(%2479)">Get the list &rarr;</a>
+        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
+          <input type="hidden" name="source" value="verified-buyer-list-79">
+          <input type="hidden" name="message" value="I would like the $79 Verified Buyer List.">
+          <label>Your email
+            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+          </label>
+          <button type="submit" class="btn solid">Get the list &rarr;</button>
+          <p class="inquiry-status" role="status" aria-live="polite"></p>
+        </form>
+        <noscript><span class="product-fallback"><!--email_off--><a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Verified%20Buyer%20List%20(%2479)">Email to get the list &rarr;</a><!--/email_off--></span></noscript>
       </div>
       <div class="card">
         <h3 class="iname">Market Opportunity Brief</h3>
         <p class="price">$99</p>
         <div class="copy"><p>Evidence-cited import-market analysis: tariff treatment, competition mapping, wholesale price
           anchors, pilot economics. July 2026 edition: Japanese specialty imports.</p></div>
-        <a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Market%20Opportunity%20Brief%20(%2499)">Get the brief &rarr;</a>
+        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
+          <input type="hidden" name="source" value="market-opportunity-brief-99">
+          <input type="hidden" name="message" value="I would like the $99 Market Opportunity Brief.">
+          <label>Your email
+            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+          </label>
+          <button type="submit" class="btn solid">Get the brief &rarr;</button>
+          <p class="inquiry-status" role="status" aria-live="polite"></p>
+        </form>
+        <noscript><span class="product-fallback"><!--email_off--><a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Market%20Opportunity%20Brief%20(%2499)">Email to get the brief &rarr;</a><!--/email_off--></span></noscript>
       </div>
       <div class="card">
         <h3 class="iname">Free Sample</h3>
         <p class="price">Free</p>
         <div class="copy"><p>25 sample company records (role inboxes masked), free. See the exact fields and format
           before you buy.</p></div>
-        <a class="btn ghost" href="mailto:froy@perfect-imports.com?subject=Free%20Sample%20request">Get the free sample &rarr;</a>
+        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
+          <input type="hidden" name="source" value="free-sample">
+          <input type="hidden" name="message" value="I would like the free 25-record sample.">
+          <label>Your email
+            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
+          </label>
+          <button type="submit" class="btn ghost">Get the free sample &rarr;</button>
+          <p class="inquiry-status" role="status" aria-live="polite"></p>
+        </form>
+        <noscript><span class="product-fallback"><!--email_off--><a class="btn ghost" href="mailto:froy@perfect-imports.com?subject=Free%20Sample%20request">Email for the free sample &rarr;</a><!--/email_off--></span></noscript>
       </div>
     </div>
     <p class="aside">Company-level business data only &mdash; no personal contacts. Business-role contact data
       for lawful B2B outreach by one organization; no resale; buyer is responsible for outreach-law compliance.
-      <a href="removal.html" class="link" style="color:var(--brass-d)">Request removal &rarr;</a></p>
+      <a href="/privacy/" class="link" style="color:var(--brass-d)">Privacy &rarr;</a> &middot; <a href="/terms/" class="link" style="color:var(--brass-d)">Terms &rarr;</a> &middot; <a href="removal.html" class="link" style="color:var(--brass-d)">Request removal &rarr;</a></p>
   </div>
 </section>
 
@@ -326,9 +399,52 @@
     <h2>Let&rsquo;s talk warehousing.</h2>
     <p class="lead" style="margin-left:auto;margin-right:auto">Bonded storage, duty-deferred warehousing, or
       US fulfillment for your imports &mdash; send a note and I&rsquo;ll get right back to you.</p>
-    <a href="mailto:froy@perfect-imports.com?subject=Warehousing%20inquiry" class="btn solid">Email froy@perfect-imports.com</a>
+    <form id="inquiry-form" class="inquiry-form" method="POST" action="/api/inquiry" style="max-width:34rem;margin:1.5rem auto 0;text-align:left">
+      <input type="hidden" name="source" value="contact-section">
+      <!-- Honeypot: hidden from people, filled by naive bots. Never remove. -->
+      <div style="position:absolute;left:-9999px" aria-hidden="true">
+        <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+      </div>
+      <div style="display:grid;gap:.6rem">
+        <input name="name" placeholder="Your name" autocomplete="name"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
+        <input name="company" placeholder="Company" autocomplete="organization"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
+        <input name="email" type="email" required placeholder="Email (required)" autocomplete="email"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
+        <textarea name="message" required rows="4" placeholder="What do you need stored, and roughly how much?"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit"></textarea>
+        <button type="submit" class="btn solid" style="justify-self:start">Send enquiry &rarr;</button>
+      </div>
+      <p id="inquiry-status" class="inquiry-status" role="status" aria-live="polite" style="margin:.6rem 0 0;min-height:1.2em"></p>
+    </form>
+    <p class="fine" style="margin-top:.4rem">Prefer email?
+      <!--email_off--><a href="mailto:froy@perfect-imports.com?subject=Warehousing%20inquiry" class="link" style="color:var(--brass-d)">froy@perfect-imports.com</a><!--/email_off-->
+    </p>
+    <script>
+    // Progressive enhancement only. With JavaScript off the form still POSTs normally
+    // and the function still records the enquiry - the mailto fallback above is a third
+    // layer. Losing an enquiry is the one failure this page cannot afford.
+    (function () {
+      var forms = document.querySelectorAll('.inquiry-form');
+      Array.prototype.forEach.call(forms, function (f) {
+        var s = f.querySelector('.inquiry-status');
+        f.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          s.textContent = 'Sending...';
+          fetch(f.action, { method: 'POST', body: new FormData(f) })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d && d.ok) { window.location.href = '/thanks/'; return; }
+              else { s.textContent = (d && d.error) || 'Something went wrong. Please email me directly.'; }
+            })
+            .catch(function () { s.textContent = 'Something went wrong. Please email me directly.'; });
+        });
+      });
+    })();
+    </script>
     <p class="sig">Froy Monteverde <span>&middot; Managing Director, Perfect Imports</span></p>
-    <p class="fine">Perfect Imports LLC &middot; 3255 SW 11th Ave, Fort Lauderdale, FL 33315</p>
+    <p class="fine">Perfect Imports LLC &middot; 3259 SW 11th Ave, Fort Lauderdale, FL 33315</p>
   </div>
 </section>
 
@@ -345,9 +461,9 @@
         <a href="#intelligence">Intelligence</a>
       </div>
       <div class="col"><b>Contact</b>
-        <a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a>
+        <!--email_off--><a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a><!--/email_off-->
         <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">Froy Monteverde, Managing Director</span>
-        <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">3255 SW 11th Ave, Fort Lauderdale, FL 33315</span>
+        <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">3259 SW 11th Ave, Fort Lauderdale, FL 33315</span>
       </div>
     </div>
     <div class="base">© 2026 Perfect Imports LLC · US import, bonded 3PL warehousing &amp; distribution · Fort Lauderdale, Florida</div>

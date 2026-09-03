@@ -7,11 +7,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perfect Imports — Bonded 3PL Warehousing &amp; Import Logistics, Fort Lauderdale</title>
-<meta name="description" content="Perfect Imports provides bonded, climate-controlled 3PL warehousing in Fort Lauderdale — duty-deferred storage and third-party alcohol-licensed handling for US food, beverage, and spirits importers, plus verified market intelligence.">
+<meta name="description" content="Perfect Imports provides bonded, climate-controlled 3PL warehousing in Fort Lauderdale — duty-deferred storage and third-party alcohol-licensed handling for US food, beverage, and spirits importers.">
 <link rel="icon" type="image/png" href="assets/favicon-48.png">
 <link rel="canonical" href="https://perfect-imports.com/">
 <meta property="og:title" content="Perfect Imports — Bonded 3PL Warehousing &amp; Import Logistics">
-<meta property="og:description" content="Bonded, duty-deferred warehousing in Fort Lauderdale for US importers of food, beverage, and spirits — plus verified market intelligence.">
+<meta property="og:description" content="Bonded, duty-deferred warehousing in Fort Lauderdale for US importers of food, beverage, and spirits.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://perfect-imports.com/">
 <meta property="og:image" content="https://perfect-imports.com/assets/cover-banner.png">
@@ -107,8 +107,6 @@
   .lead{color:var(--muted);font-size:18px;max-width:58ch;margin-top:18px;font-weight:400;line-height:1.55}
 
   .cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
-  .cards.three{grid-template-columns:repeat(3,1fr)}
-  @media(max-width:900px){.cards.three{grid-template-columns:1fr}}
   @media(max-width:760px){.cards{grid-template-columns:1fr}}
   .card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:36px;position:relative;
      transition:border-color .2s,box-shadow .2s}
@@ -122,28 +120,10 @@
   .card h3{font-family:"Source Serif 4",serif;font-size:24px;font-weight:600;color:var(--forest);
      margin:12px 0 14px;letter-spacing:-.01em;line-height:1.2}
   .card p{color:var(--muted);font-size:15px;font-weight:400;line-height:1.58}
-  .card .price{font-family:"Source Serif 4",serif;font-size:32px;font-weight:600;color:var(--forest);
-     margin:14px 0 12px;letter-spacing:-.01em}
   .card .btn{margin-top:24px}
+  .card h3.iname{font-size:22px;margin:10px 0 4px}
   .aside{margin-top:34px;color:var(--muted);font-size:15px;font-weight:400;max-width:74ch;line-height:1.55;
      border-left:2px solid var(--brass);padding:6px 0 6px 20px}
-
-  /* Intelligence cards: flex so CTAs baseline-align despite unequal copy */
-  .cards.three .card{display:flex;flex-direction:column}
-  .card .ihead{margin-bottom:2px}
-  .card h3.iname{font-size:22px;margin:10px 0 4px}
-  .cards.three .price{margin:6px 0 16px}
-  .cards.three .card .copy{flex:1 1 auto;min-height:132px}
-  .cards.three .card .btn{margin-top:auto;align-self:flex-start}
-  .product-inquiry{display:grid;gap:10px;margin-top:auto;padding-top:24px}
-  .product-inquiry label{display:grid;gap:5px;color:var(--muted);font-size:12px;font-weight:600}
-  .product-inquiry input[type="email"]{width:100%;padding:.7rem .8rem;border:1px solid rgba(0,0,0,.2);
-     border-radius:.4rem;background:#fff;color:var(--ink);font:inherit}
-  .product-inquiry input[type="email"]:focus-visible{outline:2px solid var(--brass-d);outline-offset:2px}
-  .cards.three .product-inquiry .btn{margin-top:0;justify-self:start}
-  .product-inquiry .inquiry-status{min-height:1.2em;font-size:12px;line-height:1.4}
-  .product-fallback .btn{margin-top:10px}
-  @media(max-width:900px){.cards.three .card .copy{min-height:0}}
 
   .band{background:var(--forest);color:var(--cream)}
   .band h2{color:var(--cream)}.band .lead{color:rgba(245,241,232,.82)}.band .kick{color:var(--brass-on-dark)}
@@ -172,6 +152,10 @@
      text-transform:uppercase;color:var(--brass-on-dark);margin-bottom:12px;font-weight:500}
   .foot .col a{display:block;color:rgba(245,241,232,.78);padding:4px 0;transition:color .18s}
   .foot .col a:hover{color:var(--cream)}
+  .foot .legal{margin-top:10px;font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+     font-size:13.5px;letter-spacing:0;color:rgba(245,241,232,.62)}
+  .foot .legal a{color:rgba(245,241,232,.78);transition:color .18s}
+  .foot .legal a:hover{color:var(--cream)}
   .foot .base{width:100%;border-top:1px solid rgba(214,184,119,.14);margin-top:28px;padding-top:22px;
      color:rgba(245,241,232,.66);font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.02em}
   @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
@@ -333,7 +317,6 @@
       <a href="#what">Warehousing</a>
       <a href="#why">Why us</a>
       <a href="#serve">Who we serve</a>
-      <a href="#intelligence">Intelligence</a>
       <a href="#contact" class="btn on-dark">Make an inquiry</a>
     </nav>
   </div>
@@ -389,9 +372,6 @@
           operator who answers directly.</p>
       </div>
     </div>
-    <p class="aside">We also work with <b>PerfectTed</b> matcha (featured on
-      <a class="link" href="https://www.youtube.com/watch?v=RsTaThjbZGk" target="_blank" rel="noopener">Dragons&rsquo; Den</a>,
-      the UK&rsquo;s answer to Shark Tank) &mdash; ask us about US matcha and hojicha sourcing introductions.</p>
   </div>
 </section>
 
@@ -429,73 +409,8 @@
       <span class="chip" style="border-color:var(--line);color:var(--forest)">Wine &amp; sake distributors</span>
       <span class="chip" style="border-color:var(--line);color:var(--forest)">Food &amp; beverage importers</span>
       <span class="chip" style="border-color:var(--line);color:var(--forest)">Olive oil, coffee &amp; chocolate brands</span>
-      <span class="chip" style="border-color:var(--line);color:var(--forest)">Matcha &amp; specialty tea brands</span>
+      <span class="chip" style="border-color:var(--line);color:var(--forest)">Tea &amp; specialty beverage brands</span>
     </div>
-  </div>
-</section>
-
-<section id="intelligence" class="sec-dense" style="background:var(--cream2)">
-  <div class="wrap">
-    <p class="kick">04 &mdash; Data &amp; Intelligence</p>
-    <h2>The data behind our pipeline &mdash; packaged for yours.</h2>
-    <p class="lead">We run an automated sourcing, verification, and market-intelligence engine for our own
-      import business. The same outputs are available as products.</p>
-    <div class="cards three">
-      <div class="card">
-        <h3 class="iname">Verified Buyer List</h3>
-        <p class="price">$79</p>
-        <div class="copy"><p>US specialty coffee roasters &amp; cafés &mdash; 991 company-level accounts for wholesale
-          account discovery. Each record: company, website, category, buyer type, city/state, a company
-          role inbox (info@ / wholesale@ &mdash; never personal contacts), verification tier, and a public
-          source URL with the date it was verified. Invalid company records replaced (10%+ error
-          threshold). Refreshed copy at 30 days.</p></div>
-        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
-          <input type="hidden" name="source" value="verified-buyer-list-79">
-          <input type="hidden" name="message" value="I would like the $79 Verified Buyer List.">
-          <label>Your email
-            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
-          </label>
-          <button type="submit" class="btn solid">Get the list &rarr;</button>
-          <p class="inquiry-status" role="status" aria-live="polite"></p>
-        </form>
-        <noscript><span class="product-fallback"><!--email_off--><a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Verified%20Buyer%20List%20(%2479)">Email to get the list &rarr;</a><!--/email_off--></span></noscript>
-      </div>
-      <div class="card">
-        <h3 class="iname">Market Opportunity Brief</h3>
-        <p class="price">$99</p>
-        <div class="copy"><p>Evidence-cited import-market analysis: tariff treatment, competition mapping, wholesale price
-          anchors, pilot economics. July 2026 edition: Japanese specialty imports.</p></div>
-        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
-          <input type="hidden" name="source" value="market-opportunity-brief-99">
-          <input type="hidden" name="message" value="I would like the $99 Market Opportunity Brief.">
-          <label>Your email
-            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
-          </label>
-          <button type="submit" class="btn solid">Get the brief &rarr;</button>
-          <p class="inquiry-status" role="status" aria-live="polite"></p>
-        </form>
-        <noscript><span class="product-fallback"><!--email_off--><a class="btn solid" href="mailto:froy@perfect-imports.com?subject=Market%20Opportunity%20Brief%20(%2499)">Email to get the brief &rarr;</a><!--/email_off--></span></noscript>
-      </div>
-      <div class="card">
-        <h3 class="iname">Free Sample</h3>
-        <p class="price">Free</p>
-        <div class="copy"><p>25 sample company records (role inboxes masked), free. See the exact fields and format
-          before you buy.</p></div>
-        <form class="product-inquiry inquiry-form" method="POST" action="/api/inquiry">
-          <input type="hidden" name="source" value="free-sample">
-          <input type="hidden" name="message" value="I would like the free 25-record sample.">
-          <label>Your email
-            <input name="email" type="email" required autocomplete="email" placeholder="you@company.com">
-          </label>
-          <button type="submit" class="btn ghost">Get the free sample &rarr;</button>
-          <p class="inquiry-status" role="status" aria-live="polite"></p>
-        </form>
-        <noscript><span class="product-fallback"><!--email_off--><a class="btn ghost" href="mailto:froy@perfect-imports.com?subject=Free%20Sample%20request">Email for the free sample &rarr;</a><!--/email_off--></span></noscript>
-      </div>
-    </div>
-    <p class="aside">Company-level business data only &mdash; no personal contacts. Business-role contact data
-      for lawful B2B outreach by one organization; no resale; buyer is responsible for outreach-law compliance.
-      <a href="/privacy/" class="link" style="color:var(--brass-d)">Privacy &rarr;</a> &middot; <a href="/terms/" class="link" style="color:var(--brass-d)">Terms &rarr;</a> &middot; <a href="removal.html" class="link" style="color:var(--brass-d)">Request removal &rarr;</a></p>
   </div>
 </section>
 
@@ -583,7 +498,6 @@
         <a href="#what">Warehousing</a>
         <a href="#why">Why us</a>
         <a href="#serve">Who we serve</a>
-        <a href="#intelligence">Intelligence</a>
       </div>
       <div class="col"><b>Contact</b>
         <!--email_off--><a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a><!--/email_off-->
@@ -591,7 +505,9 @@
         <span style="color:rgba(244,240,230,.78);display:block;padding:3px 0">3259 SW 11th Ave, Fort Lauderdale, FL 33315</span>
       </div>
     </div>
-    <div class="base">© 2026 Perfect Imports LLC · US import, bonded 3PL warehousing &amp; distribution · Fort Lauderdale, Florida</div>
+    <div class="base">© 2026 Perfect Imports LLC · US import, bonded 3PL warehousing &amp; distribution · Fort Lauderdale, Florida
+      <div class="legal"><a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a> &middot; <a href="/removal.html">Request removal</a></div>
+    </div>
   </div>
 </footer>
 

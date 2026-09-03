@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" href="assets/favicon-48.png">
 <link rel="canonical" href="https://perfect-imports.com/terms/">
 <meta property="og:title" content="Perfect Imports — Bonded 3PL Warehousing &amp; Import Logistics">
-<meta property="og:description" content="Bonded, duty-deferred warehousing in Fort Lauderdale for US importers of food, beverage, and spirits — plus verified market intelligence.">
+<meta property="og:description" content="Bonded, duty-deferred warehousing in Fort Lauderdale for US importers of food, beverage, and spirits.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://perfect-imports.com/">
 <meta property="og:image" content="https://perfect-imports.com/assets/cover-banner.png">
@@ -107,8 +107,6 @@
   .lead{color:var(--muted);font-size:18px;max-width:58ch;margin-top:18px;font-weight:400;line-height:1.55}
 
   .cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px}
-  .cards.three{grid-template-columns:repeat(3,1fr)}
-  @media(max-width:900px){.cards.three{grid-template-columns:1fr}}
   @media(max-width:760px){.cards{grid-template-columns:1fr}}
   .card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:36px;position:relative;
      transition:border-color .2s,box-shadow .2s}
@@ -127,23 +125,6 @@
   .card .btn{margin-top:24px}
   .aside{margin-top:34px;color:var(--muted);font-size:15px;font-weight:400;max-width:74ch;line-height:1.55;
      border-left:2px solid var(--brass);padding:6px 0 6px 20px}
-
-  /* Intelligence cards: flex so CTAs baseline-align despite unequal copy */
-  .cards.three .card{display:flex;flex-direction:column}
-  .card .ihead{margin-bottom:2px}
-  .card h3.iname{font-size:22px;margin:10px 0 4px}
-  .cards.three .price{margin:6px 0 16px}
-  .cards.three .card .copy{flex:1 1 auto;min-height:132px}
-  .cards.three .card .btn{margin-top:auto;align-self:flex-start}
-  .product-inquiry{display:grid;gap:10px;margin-top:auto;padding-top:24px}
-  .product-inquiry label{display:grid;gap:5px;color:var(--muted);font-size:12px;font-weight:600}
-  .product-inquiry input[type="email"]{width:100%;padding:.7rem .8rem;border:1px solid rgba(0,0,0,.2);
-     border-radius:.4rem;background:#fff;color:var(--ink);font:inherit}
-  .product-inquiry input[type="email"]:focus-visible{outline:2px solid var(--brass-d);outline-offset:2px}
-  .cards.three .product-inquiry .btn{margin-top:0;justify-self:start}
-  .product-inquiry .inquiry-status{min-height:1.2em;font-size:12px;line-height:1.4}
-  .product-fallback .btn{margin-top:10px}
-  @media(max-width:900px){.cards.three .card .copy{min-height:0}}
 
   .band{background:var(--forest);color:var(--cream)}
   .band h2{color:var(--cream)}.band .lead{color:rgba(245,241,232,.82)}.band .kick{color:var(--brass-on-dark)}

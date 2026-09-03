@@ -25,17 +25,28 @@ class MockKV {
   }
 }
 
-function formRequest(ip = "203.0.113.10", source = "test-source") {
-  const body = new URLSearchParams({
+function formRequest(
+  ip = "203.0.113.10",
+  source = "contact-section",
+  fields = {},
+  headers = {},
+) {
+  const values = {
     email: "buyer@example.com",
     message: "Please contact me",
     source,
-  });
+    ...fields,
+  };
+  const body = new URLSearchParams();
+  for (const [key, value] of Object.entries(values)) {
+    if (value !== undefined) body.set(key, value);
+  }
   return new Request("https://example.test/api/inquiry", {
     method: "POST",
     headers: {
       "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
       "cf-connecting-ip": ip,
+      ...headers,
     },
     body,
   });
@@ -44,6 +55,112 @@ function formRequest(ip = "203.0.113.10", source = "test-source") {
 function inquiryPuts(kv) {
   return kv.puts.filter((item) => item.key.startsWith("inq:"));
 }
+
+function storedRecord(kv, index = 0) {
+  return JSON.parse(inquiryPuts(kv)[index].value);
+}
+
+test("honeypot returns ok without an inquiry id and stores no inquiry record", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.9", "bonded-warehousing", { website: "https://bot.test" }),
+    env: { INQUIRIES: kv },
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body, { ok: true });
+  assert.equal(Object.hasOwn(body, "inquiry_id"), false);
+  assert.equal(inquiryPuts(kv).length, 0);
+});
+
+test("successful submissions return the durable inquiry id that was written", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.10", "bonded-warehousing"),
+    env: { INQUIRIES: kv },
+  });
+  const body = await response.json();
+  const puts = inquiryPuts(kv);
+
+  assert.equal(response.status, 200);
+  assert.equal(body.ok, true);
+  assert.equal(puts.length, 1);
+  assert.equal(body.inquiry_id, puts[0].key);
+  assert.equal(storedRecord(kv).inquiry_id, puts[0].key);
+});
+
+test("attribution and qualification fields round-trip into storage with caps", async () => {
+  const kv = new MockKV();
+  const fields = {
+    gclid: "g".repeat(600),
+    gbraid: "b".repeat(600),
+    wbraid: "w".repeat(600),
+    utm_source: "s".repeat(140),
+    utm_medium: "m".repeat(140),
+    utm_campaign: "c".repeat(240),
+    utm_term: "t".repeat(240),
+    utm_content: "n".repeat(240),
+    channel: "paid-search",
+    landing_path: "https://perfect-imports.com/" + "p".repeat(600),
+    landing_referrer: "https://google.com/" + "r".repeat(600),
+    commodity: "green coffee ".repeat(20),
+    approx_volume: "20 pallets, 1 container/month ".repeat(8),
+  };
+
+  const response = await worker.onRequestPost({
+    request: formRequest(
+      "203.0.113.15",
+      "bonded-warehousing",
+      fields,
+      { referer: "https://server-ref.example/path?query=1" },
+    ),
+    env: { INQUIRIES: kv },
+  });
+  const record = storedRecord(kv);
+
+  assert.equal(response.status, 200);
+  assert.equal(record.referrer, "https://server-ref.example/path?query=1");
+  assert.equal(record.channel, "paid-search");
+  assert.equal(record.gclid.length, 512);
+  assert.equal(record.gbraid.length, 512);
+  assert.equal(record.wbraid.length, 512);
+  assert.equal(record.utm_source.length, 100);
+  assert.equal(record.utm_medium.length, 100);
+  assert.equal(record.utm_campaign.length, 200);
+  assert.equal(record.utm_term.length, 200);
+  assert.equal(record.utm_content.length, 200);
+  assert.equal(record.landing_path.length, 512);
+  assert.equal(record.landing_referrer.length, 512);
+  assert.equal(record.commodity.length, 160);
+  assert.equal(record.approx_volume.length, 120);
+});
+
+test("channels outside the allowlist are stored as unknown", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.16", "contact-section", { channel: "paid-social" }),
+    env: { INQUIRIES: kv },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(storedRecord(kv).channel, "unknown");
+});
+
+test("sources outside the allowlist are stored as unknown", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.17", "ads-bonded-warehousing"),
+    env: { INQUIRIES: kv },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(storedRecord(kv).source, "unknown");
+});
 
 test("declared oversized bodies are rejected before reading or touching KV", async () => {
   // NOTE: do not assert on a `pull` flag. ReadableStream calls pull() eagerly on
@@ -106,6 +223,36 @@ test("chunked oversized bodies are stopped at the byte cap before parsing", asyn
   assert.equal(inquiryPuts(kv).length, 0);
 });
 
+test("invalid email addresses are rejected and not stored", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.18", "contact-section", { email: "buyer@example.com,victim@example.com" }),
+    env: { INQUIRIES: kv },
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.equal(body.ok, false);
+  assert.equal(body.error, "a valid email address is required");
+  assert.equal(inquiryPuts(kv).length, 0);
+});
+
+test("missing messages are rejected and not stored", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.19", "contact-section", { message: undefined }),
+    env: { INQUIRIES: kv },
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 400);
+  assert.equal(body.ok, false);
+  assert.equal(body.error, "please tell us what you need");
+  assert.equal(inquiryPuts(kv).length, 0);
+});
+
 test("the sixth attempt from one IP is rate limited and not stored", async () => {
   const kv = new MockKV();
   const originalNow = Date.now;
@@ -113,13 +260,17 @@ test("the sixth attempt from one IP is rate limited and not stored", async () =>
   try {
     for (let attempt = 1; attempt <= 5; attempt += 1) {
       const response = await worker.onRequestPost({
-        request: formRequest("203.0.113.12", "rate-test-" + attempt),
+        request: formRequest("203.0.113.12", "contact-section", {
+          message: "Rate test " + attempt,
+        }),
         env: { INQUIRIES: kv },
       });
       assert.equal(response.status, 200);
     }
     const blocked = await worker.onRequestPost({
-      request: formRequest("203.0.113.12", "must-not-store"),
+      request: formRequest("203.0.113.12", "contact-section", {
+        message: "Must not store",
+      }),
       env: { INQUIRIES: kv },
     });
 
@@ -127,7 +278,7 @@ test("the sixth attempt from one IP is rate limited and not stored", async () =>
     assert.match(blocked.headers.get("retry-after"), /^\d+$/);
     assert.equal(inquiryPuts(kv).length, 5);
     assert.equal(
-      inquiryPuts(kv).some((item) => JSON.parse(item.value).source === "must-not-store"),
+      inquiryPuts(kv).some((item) => JSON.parse(item.value).message === "Must not store"),
       false,
     );
   } finally {
@@ -173,11 +324,38 @@ test("a transient rate-counter failure does not discard a valid enquiry", async 
   console.log = () => {};
   try {
     const response = await worker.onRequestPost({
-      request: formRequest("203.0.113.13", "counter-fail-open"),
+      request: formRequest("203.0.113.13", "contact-section"),
       env: { INQUIRIES: kv },
     });
     assert.equal(response.status, 200);
     assert.equal(inquiryPuts(kv).length, 1);
+  } finally {
+    console.error = oldError;
+    console.log = oldLog;
+  }
+});
+
+test("durable KV write failures return 503 and no success inquiry id", async () => {
+  const kv = new MockKV();
+  kv.put = async function (key, value, options) {
+    if (key.startsWith("inq:")) throw new Error("KV unavailable");
+    return MockKV.prototype.put.call(this, key, value, options);
+  };
+  const oldError = console.error;
+  const oldLog = console.log;
+  console.error = () => {};
+  console.log = () => {};
+  try {
+    const response = await worker.onRequestPost({
+      request: formRequest("203.0.113.20", "bonded-warehousing"),
+      env: { INQUIRIES: kv },
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 503);
+    assert.equal(body.ok, false);
+    assert.equal(Object.hasOwn(body, "inquiry_id"), false);
+    assert.equal(inquiryPuts(kv).length, 0);
   } finally {
     console.error = oldError;
     console.log = oldLog;
@@ -195,12 +373,12 @@ test("small JSON submissions are still accepted after bounded parsing", async ()
     body: JSON.stringify({
       email: "json@example.com",
       message: "JSON path",
-      source: "json-test",
+      source: "free-sample",
     }),
   });
 
   const response = await worker.onRequestPost({ request, env: { INQUIRIES: kv } });
 
   assert.equal(response.status, 200);
-  assert.equal(JSON.parse(inquiryPuts(kv)[0].value).source, "json-test");
+  assert.equal(storedRecord(kv).source, "free-sample");
 });

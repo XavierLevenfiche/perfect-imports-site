@@ -15,11 +15,46 @@
  * SETUP (Cloudflare Pages -> Settings -> Environment variables):
  *   INQUIRY_TO      destination, e.g. froy@perfect-imports.com
  *   RESEND_API_KEY  or equivalent provider key
- * Without them the function still returns 200 to the visitor and logs the payload, so a
- * misconfiguration never loses an enquiry in front of a prospect.
+ * Notification config is best-effort. The INQUIRIES KV binding is the durable acceptance
+ * path, and a missing or failed KV write returns a retryable error to the visitor.
  */
 
-const MAX = { name: 120, email: 254, company: 160, message: 4000, source: 60 };
+const MAX = {
+  name: 120,
+  email: 254,
+  company: 160,
+  message: 4000,
+  source: 60,
+  gclid: 512,
+  gbraid: 512,
+  wbraid: 512,
+  utm_source: 100,
+  utm_medium: 100,
+  utm_campaign: 200,
+  utm_term: 200,
+  utm_content: 200,
+  channel: 80,
+  landing_path: 512,
+  landing_referrer: 512,
+  commodity: 160,
+  approx_volume: 120,
+};
+
+const SOURCE_ALLOWLIST = [
+  "bonded-warehousing",
+  "verified-buyer-list-79",
+  "market-opportunity-brief-99",
+  "free-sample",
+  "contact-section",
+];
+
+const CHANNEL_ALLOWLIST = [
+  "paid-search",
+  "organic",
+  "referral",
+  "direct",
+  "unknown",
+];
 
 // Admission control. The endpoint is public and unauthenticated, so without these a
 // single script can fill KV, burn Gmail quota and bury a real lead under noise.
@@ -51,6 +86,40 @@ function looksLikeEmail(v) {
   // old test and produced a two-address Reply-To, so a human reply could go somewhere the
   // send gate never sees.
   return /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(v) && v.length <= 254;
+}
+
+function allowlisted(v, allowed) {
+  return allowed.indexOf(v) !== -1 ? v : "unknown";
+}
+
+function addBodyLine(lines, label, value) {
+  if (value) lines.push(label + ": " + value);
+}
+
+function buildEmailBody(payload) {
+  var lines = [];
+  addBodyLine(lines, "Inquiry ID", payload.inquiry_id);
+  addBodyLine(lines, "Source", payload.source);
+  addBodyLine(lines, "Channel", payload.channel);
+  addBodyLine(lines, "Name", payload.name);
+  addBodyLine(lines, "Email", payload.email);
+  addBodyLine(lines, "Company", payload.company);
+  addBodyLine(lines, "Country", payload.country);
+  addBodyLine(lines, "Referrer", payload.referrer);
+  addBodyLine(lines, "Landing path", payload.landing_path);
+  addBodyLine(lines, "Landing referrer", payload.landing_referrer);
+  addBodyLine(lines, "gclid", payload.gclid);
+  addBodyLine(lines, "gbraid", payload.gbraid);
+  addBodyLine(lines, "wbraid", payload.wbraid);
+  addBodyLine(lines, "utm_source", payload.utm_source);
+  addBodyLine(lines, "utm_medium", payload.utm_medium);
+  addBodyLine(lines, "utm_campaign", payload.utm_campaign);
+  addBodyLine(lines, "utm_term", payload.utm_term);
+  addBodyLine(lines, "utm_content", payload.utm_content);
+  addBodyLine(lines, "Commodity", payload.commodity);
+  addBodyLine(lines, "Approx volume", payload.approx_volume);
+  addBodyLine(lines, "Received", payload.received_utc);
+  return lines.join("\n") + "\n\n" + payload.message + "\n";
 }
 
 function json(obj, status, extraHeaders) {
@@ -178,7 +247,12 @@ export async function onRequestPost(context) {
 
   // Honeypot. Real users never fill a hidden field; naive bots fill everything.
   // Answer 200 so a bot cannot tell it was rejected.
+  // `ok` alone is deliberately not proof of storage; `inquiry_id` is the durable-write
+  // signal the conversion pixel keys on.
   if (clean(form.website, 200)) return json({ ok: true });
+
+  var source = allowlisted(clean(form.source, MAX.source), SOURCE_ALLOWLIST);
+  var channel = allowlisted(clean(form.channel, MAX.channel), CHANNEL_ALLOWLIST);
 
   const payload = {
     name: clean(form.name, MAX.name),
@@ -186,9 +260,22 @@ export async function onRequestPost(context) {
     company: clean(form.company, MAX.company),
     message: clean(form.message, MAX.message),
     // The whole point: which CTA produced this enquiry, recorded not guessed.
-    source: clean(form.source, MAX.source) || "unknown",
+    source: source,
     referrer: clean(request.headers.get("referer"), 300),
     country: request.headers.get("cf-ipcountry") || "",
+    gclid: clean(form.gclid, MAX.gclid),
+    gbraid: clean(form.gbraid, MAX.gbraid),
+    wbraid: clean(form.wbraid, MAX.wbraid),
+    utm_source: clean(form.utm_source, MAX.utm_source),
+    utm_medium: clean(form.utm_medium, MAX.utm_medium),
+    utm_campaign: clean(form.utm_campaign, MAX.utm_campaign),
+    utm_term: clean(form.utm_term, MAX.utm_term),
+    utm_content: clean(form.utm_content, MAX.utm_content),
+    channel: channel,
+    landing_path: clean(form.landing_path, MAX.landing_path),
+    landing_referrer: clean(form.landing_referrer, MAX.landing_referrer),
+    commodity: clean(form.commodity, MAX.commodity),
+    approx_volume: clean(form.approx_volume, MAX.approx_volume),
     received_utc: new Date().toISOString(),
   };
 
@@ -203,30 +290,24 @@ export async function onRequestPost(context) {
     "Website enquiry [" + payload.source + "] - " +
     (payload.company || payload.name || payload.email);
 
-  const body =
-    "Source:   " + payload.source + "\n" +
-    "Name:     " + payload.name + "\n" +
-    "Email:    " + payload.email + "\n" +
-    "Company:  " + payload.company + "\n" +
-    "Country:  " + payload.country + "\n" +
-    "Referrer: " + payload.referrer + "\n" +
-    "Received: " + payload.received_utc + "\n\n" +
-    payload.message + "\n";
-
   // DURABLE FIRST. The visitor is told "sent" only when a durable record exists.
   // Previously Resend ran first and both failures were swallowed behind {ok:true}, so a
   // provider outage or a missing binding silently lost the lead while the form reset and
   // said thank you. Logging is not acceptance.
   var stored = false;
+  var key = "";
   try {
     if (env.INQUIRIES) {
-      var key = "inq:" + payload.received_utc + ":" + Math.random().toString(36).slice(2, 8);
+      key = "inq:" + payload.received_utc + ":" + Math.random().toString(36).slice(2, 8);
+      payload.inquiry_id = key;
       await env.INQUIRIES.put(key, JSON.stringify(payload));
       stored = true;
     } else {
       console.error("inquiry: KV binding INQUIRIES missing");
     }
   } catch (err) {
+    delete payload.inquiry_id;
+    key = "";
     console.error("inquiry: KV write failed", err);
   }
 
@@ -241,6 +322,7 @@ export async function onRequestPost(context) {
   // here is logged and never affects what the visitor sees.
   try {
     if (env.RESEND_API_KEY && env.INQUIRY_TO) {
+      var body = buildEmailBody(payload);
       var r = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -261,5 +343,5 @@ export async function onRequestPost(context) {
     console.error("inquiry: resend threw", err);
   }
 
-  return json({ ok: true });
+  return json({ ok: true, inquiry_id: key });
 }

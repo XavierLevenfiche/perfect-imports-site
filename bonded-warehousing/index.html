@@ -178,14 +178,120 @@
 </style>
   
   <!-- Google tag (gtag.js) - Google Ads AW-18417846877. Added 2026-08-29 for the
-       bonded-warehousing search test. Conversion fires on /thanks/, which both forms
-       redirect to on success. -->
+       bonded-warehousing search test. Conversion fires only after a durable inquiry id. -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18417846877"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'AW-18417846877');
+  </script>
+  <script>
+    (function () {
+      var KEY = 'perfect-imports:inquiry-attribution:v1';
+      var FIELDS = ['gclid', 'gbraid', 'wbraid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+
+      function originPath(value) {
+        if (!value) return '';
+        try {
+          var url = new URL(value, window.location.href);
+          return url.origin + url.pathname;
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function hostFrom(value) {
+        if (!value) return '';
+        try {
+          return new URL(value, window.location.href).hostname.toLowerCase();
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function simpleHost(host) {
+        return String(host || '').toLowerCase().replace(/^www\./, '');
+      }
+
+      function looksLikeSearchEngine(value) {
+        var s = simpleHost(value);
+        return /(^|[^a-z0-9])(google|bing|yahoo|duckduckgo|ddg|ecosia|yandex|baidu|ask|aol|brave|qwant|startpage)([^a-z0-9]|$)/.test(s);
+      }
+
+      function externalReferrerHost(host) {
+        var refHost = simpleHost(host);
+        var here = simpleHost(window.location.hostname);
+        return refHost && refHost !== here;
+      }
+
+      function collect() {
+        var params = new URLSearchParams(window.location.search || '');
+        var out = {};
+        FIELDS.forEach(function (field) {
+          var value = params.get(field);
+          if (value) out[field] = value;
+        });
+        out.landing_path = originPath(window.location.href);
+        out.landing_referrer = originPath(document.referrer);
+
+        var refHost = hostFrom(document.referrer);
+        if (out.gclid || out.gbraid || out.wbraid) out.channel = 'paid-search';
+        else if (out.utm_source) out.channel = looksLikeSearchEngine(out.utm_source) ? 'organic' : 'referral';
+        else if (looksLikeSearchEngine(refHost)) out.channel = 'organic';
+        else if (externalReferrerHost(refHost)) out.channel = 'referral';
+        else out.channel = 'direct';
+        return out;
+      }
+
+      function readStored() {
+        try {
+          var raw = window.sessionStorage.getItem(KEY);
+          var parsed = raw ? JSON.parse(raw) : null;
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function writeStored(value) {
+        try {
+          window.sessionStorage.setItem(KEY, JSON.stringify(value));
+        } catch (e) {
+          /* Storage can be disabled; current-page attribution still applies. */
+        }
+      }
+
+      function hasClickId(value) {
+        return !!(value && (value.gclid || value.gbraid || value.wbraid));
+      }
+
+      function isAttributable(value) {
+        return !!(value && value.channel && value.channel !== 'direct' && value.channel !== 'unknown');
+      }
+
+      function choose(stored, current) {
+        if (!stored) return current;
+        if (hasClickId(current) && !isAttributable(stored)) return current;
+        if (isAttributable(current) && !isAttributable(stored)) return current;
+        return stored;
+      }
+
+      var current = collect();
+      writeStored(choose(readStored(), current));
+      window.piInquiryAttribution = {
+        get: function () {
+          return readStored() || current;
+        },
+        apply: function (formData) {
+          var data = this.get();
+          ['channel', 'landing_path', 'landing_referrer'].concat(FIELDS).forEach(function (field) {
+            if (data && data[field]) formData.set(field, data[field]);
+          });
+          return formData;
+        }
+      };
+    })();
   </script>
 </head>
 <body>
@@ -232,7 +338,7 @@
       enough for a real number. I answer these myself, usually same day.</p>
 
     <form id="inquiry-form" method="POST" action="/api/inquiry" style="max-width:34rem;margin:1.5rem auto 0;text-align:left">
-      <input type="hidden" name="source" value="ads-bonded-warehousing">
+      <input type="hidden" name="source" value="bonded-warehousing">
       <div style="position:absolute;left:-9999px" aria-hidden="true">
         <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
       </div>
@@ -243,7 +349,11 @@
                style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
         <input name="email" type="email" required placeholder="Email (required)" autocomplete="email"
                style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
-        <textarea name="message" required rows="4" placeholder="What are you storing, how many pallets, and when?"
+        <input name="commodity" placeholder="What are you storing?"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
+        <input name="approx_volume" placeholder="Roughly how much? eg 20 pallets, 1 container/month"
+               style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit">
+        <textarea name="message" required rows="4" placeholder="When do you need it, and anything else I should know?"
                style="padding:.7rem .9rem;border:1px solid rgba(0,0,0,.2);border-radius:.4rem;font:inherit"></textarea>
         <button type="submit" class="btn solid" style="justify-self:start">Send enquiry &rarr;</button>
       </div>
@@ -254,19 +364,63 @@
     </p>
     <script>
     (function () {
+      var CONVERSION_SEND_TO = 'AW-18417846877/JnV2CM2B2-0cEN2UqM5E';
       var f = document.getElementById('inquiry-form');
       var s = document.getElementById('inquiry-status');
+      var button = f ? f.querySelector('button[type="submit"]') : null;
+      var inFlight = false;
       if (!f) return;
+
+      function finish() {
+        window.location.href = '/thanks/';
+      }
+
+      function resetSubmit() {
+        inFlight = false;
+        if (button) button.disabled = false;
+      }
+
       f.addEventListener('submit', function (ev) {
         ev.preventDefault();
+        if (inFlight) return;
+        inFlight = true;
+        if (button) button.disabled = true;
         s.textContent = 'Sending...';
-        fetch(f.action, { method: 'POST', body: new FormData(f) })
+        var formData = new FormData(f);
+        if (window.piInquiryAttribution && window.piInquiryAttribution.apply) {
+          window.piInquiryAttribution.apply(formData);
+        }
+        fetch(f.action, { method: 'POST', body: formData })
           .then(function (r) { return r.json(); })
           .then(function (d) {
-            if (d && d.ok) { window.location.href = '/thanks/'; return; }
-            else { s.textContent = (d && d.error) || 'Something went wrong. Please email me directly.'; }
+            if (d && d.ok && d.inquiry_id) {
+              var done = false;
+              function go() {
+                if (done) return;
+                done = true;
+                finish();
+              }
+              setTimeout(go, 2000);
+              if (typeof gtag === 'function') {
+                gtag('event', 'conversion', {
+                  send_to: CONVERSION_SEND_TO,
+                  transaction_id: d.inquiry_id,
+                  event_callback: go,
+                  event_timeout: 2000
+                });
+              } else {
+                go();
+              }
+              return;
+            }
+            if (d && d.ok) { finish(); return; }
+            resetSubmit();
+            s.textContent = (d && d.error) || 'Something went wrong. Please email me directly.';
           })
-          .catch(function () { s.textContent = 'Something went wrong. Please email me directly.'; });
+          .catch(function () {
+            resetSubmit();
+            s.textContent = 'Something went wrong. Please email me directly.';
+          });
       });
     })();
     </script>

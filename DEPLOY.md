@@ -131,9 +131,9 @@ The Function returns `{"ok":true}` **only once the KV write succeeds** — the v
 never told "sent" for a lead that was not durably stored. Measured end to end on
 2026-09-03: **3m19s** from submit to inbox.
 
-If you later add `RESEND_API_KEY` as a production secret, the Function will also fire an
-immediate best-effort email; failures there are logged and never change what the visitor
-sees. The relay remains the guaranteed path either way.
+Do not add a second notification provider to the Function. KV + the local relay is the
+single email-delivery path; a second sender would notify twice after every successful
+submission.
 
 ---
 

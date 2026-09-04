@@ -73,6 +73,8 @@ test("honeypot returns ok without an inquiry id and stores no inquiry record", a
   assert.deepEqual(body, { ok: true });
   assert.equal(Object.hasOwn(body, "inquiry_id"), false);
   assert.equal(inquiryPuts(kv).length, 0);
+  assert.equal(kv.gets.length, 0);
+  assert.equal(kv.puts.length, 0);
 });
 
 test("successful submissions return the durable inquiry id that was written", async () => {
@@ -138,7 +140,7 @@ test("attribution and qualification fields round-trip into storage with caps", a
   assert.equal(record.approx_volume.length, 120);
 });
 
-test("channels outside the allowlist are stored as unknown", async () => {
+test("a forged channel field is ignored and channel is derived from evidence", async () => {
   const kv = new MockKV();
 
   const response = await worker.onRequestPost({
@@ -147,7 +149,78 @@ test("channels outside the allowlist are stored as unknown", async () => {
   });
 
   assert.equal(response.status, 200);
-  assert.equal(storedRecord(kv).channel, "unknown");
+  assert.equal(storedRecord(kv).channel, "direct");
+});
+
+test("google cpc UTMs are paid search even without a click id", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.21", "bonded-warehousing", {
+      utm_source: "google",
+      utm_medium: "cpc",
+    }),
+    env: { INQUIRIES: kv },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(storedRecord(kv).channel, "paid-search");
+});
+
+test("lookalike search domains are referral rather than organic", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.22", "contact-section", {
+      landing_referrer: "https://fake-google.example/landing",
+    }),
+    env: { INQUIRIES: kv },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(storedRecord(kv).channel, "referral");
+});
+
+test("inquiry ids use collision-resistant UUIDs", async () => {
+  const kv = new MockKV();
+  const first = await worker.onRequestPost({
+    request: formRequest("203.0.113.23"),
+    env: { INQUIRIES: kv },
+  });
+  const second = await worker.onRequestPost({
+    request: formRequest("203.0.113.24"),
+    env: { INQUIRIES: kv },
+  });
+  const firstBody = await first.json();
+  const secondBody = await second.json();
+
+  assert.notEqual(firstBody.inquiry_id, secondBody.inquiry_id);
+  assert.match(firstBody.inquiry_id, /:[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+});
+
+test("successful storage does not invoke a second notification provider", async () => {
+  const kv = new MockKV();
+  const oldFetch = globalThis.fetch;
+  let notificationCalls = 0;
+  globalThis.fetch = async () => {
+    notificationCalls += 1;
+    throw new Error("must not send directly");
+  };
+  try {
+    const response = await worker.onRequestPost({
+      request: formRequest("203.0.113.25"),
+      env: {
+        INQUIRIES: kv,
+        RESEND_API_KEY: "must-be-ignored",
+        INQUIRY_TO: "owner@example.com",
+      },
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(notificationCalls, 0);
+  } finally {
+    globalThis.fetch = oldFetch;
+  }
 });
 
 test("sources outside the allowlist are stored as unknown", async () => {

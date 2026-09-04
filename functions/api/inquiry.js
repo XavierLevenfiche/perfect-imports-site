@@ -8,15 +8,12 @@
  * into "[email protected]" and rebuilds it in JavaScript, so a visitor with that script
  * blocked sees no contact link at all.
  *
- * This captures the enquiry server-side with its source, then emails it on. No mailto,
- * no JavaScript dependency for the address, and attribution is recorded rather than
- * inferred months later.
+ * This captures the enquiry server-side with its source. The local KV relay owns email
+ * delivery; keeping one sender prevents a successful request from notifying twice.
  *
  * SETUP (Cloudflare Pages -> Settings -> Environment variables):
- *   INQUIRY_TO      destination, e.g. froy@perfect-imports.com
- *   RESEND_API_KEY  or equivalent provider key
- * Notification config is best-effort. The INQUIRIES KV binding is the durable acceptance
- * path, and a missing or failed KV write returns a retryable error to the visitor.
+ * The INQUIRIES KV binding is the durable acceptance path, and a missing or failed KV
+ * write returns a retryable error to the visitor.
  */
 
 const MAX = {
@@ -46,14 +43,6 @@ const SOURCE_ALLOWLIST = [
   "market-opportunity-brief-99",
   "free-sample",
   "contact-section",
-];
-
-const CHANNEL_ALLOWLIST = [
-  "paid-search",
-  "organic",
-  "referral",
-  "direct",
-  "unknown",
 ];
 
 // Admission control. The endpoint is public and unauthenticated, so without these a
@@ -92,34 +81,39 @@ function allowlisted(v, allowed) {
   return allowed.indexOf(v) !== -1 ? v : "unknown";
 }
 
-function addBodyLine(lines, label, value) {
-  if (value) lines.push(label + ": " + value);
+function simpleHost(value) {
+  var host = String(value || "").toLowerCase().replace(/^www\./, "");
+  try {
+    host = new URL(value).hostname.toLowerCase().replace(/^www\./, "");
+  } catch (e) {
+    // UTM sources such as "google" are deliberately accepted as bare identifiers.
+  }
+  return host;
 }
 
-function buildEmailBody(payload) {
-  var lines = [];
-  addBodyLine(lines, "Inquiry ID", payload.inquiry_id);
-  addBodyLine(lines, "Source", payload.source);
-  addBodyLine(lines, "Channel", payload.channel);
-  addBodyLine(lines, "Name", payload.name);
-  addBodyLine(lines, "Email", payload.email);
-  addBodyLine(lines, "Company", payload.company);
-  addBodyLine(lines, "Country", payload.country);
-  addBodyLine(lines, "Referrer", payload.referrer);
-  addBodyLine(lines, "Landing path", payload.landing_path);
-  addBodyLine(lines, "Landing referrer", payload.landing_referrer);
-  addBodyLine(lines, "gclid", payload.gclid);
-  addBodyLine(lines, "gbraid", payload.gbraid);
-  addBodyLine(lines, "wbraid", payload.wbraid);
-  addBodyLine(lines, "utm_source", payload.utm_source);
-  addBodyLine(lines, "utm_medium", payload.utm_medium);
-  addBodyLine(lines, "utm_campaign", payload.utm_campaign);
-  addBodyLine(lines, "utm_term", payload.utm_term);
-  addBodyLine(lines, "utm_content", payload.utm_content);
-  addBodyLine(lines, "Commodity", payload.commodity);
-  addBodyLine(lines, "Approx volume", payload.approx_volume);
-  addBodyLine(lines, "Received", payload.received_utc);
-  return lines.join("\n") + "\n\n" + payload.message + "\n";
+function looksLikeSearchEngine(value) {
+  var host = simpleHost(value);
+  if (["google", "bing", "yahoo", "duckduckgo", "ddg", "ecosia", "yandex",
+       "baidu", "ask", "aol", "brave", "qwant", "startpage"].indexOf(host) !== -1) {
+    return true;
+  }
+  return /(^|\.)(google\.[a-z]{2,}(\.[a-z]{2})?|bing\.com|search\.yahoo\.com|duckduckgo\.com|ecosia\.org|yandex\.[a-z.]+|baidu\.com|ask\.com|aol\.com|search\.brave\.com|qwant\.com|startpage\.com)$/.test(host);
+}
+
+function classifyChannel(payload) {
+  if (payload.gclid || payload.gbraid || payload.wbraid) return "paid-search";
+  var sourceIsSearch = looksLikeSearchEngine(payload.utm_source);
+  var medium = String(payload.utm_medium || "").toLowerCase().replace(/[\s_]+/g, "-");
+  var paidMedium = ["cpc", "ppc", "paid", "paid-search", "sem"].indexOf(medium) !== -1;
+  var organicMedium = !medium || ["organic", "seo"].indexOf(medium) !== -1;
+  if (sourceIsSearch && paidMedium) return "paid-search";
+  if (sourceIsSearch && organicMedium) return "organic";
+  if (payload.utm_source && !paidMedium) return "referral";
+  if (payload.utm_source) return "unknown";
+  var referrerHost = simpleHost(payload.landing_referrer);
+  if (looksLikeSearchEngine(referrerHost)) return "organic";
+  if (referrerHost && referrerHost !== "perfect-imports.com") return "referral";
+  return "direct";
 }
 
 function json(obj, status, extraHeaders) {
@@ -216,21 +210,6 @@ export async function onRequestPost(context) {
     return json({ ok: false, error: "request body is too large" }, 413);
   }
 
-  try {
-    var admission = await rateLimit(request, env);
-    if (!admission.allowed) {
-      return json(
-        { ok: false, error: "too many enquiries - please try again shortly" },
-        429,
-        { "retry-after": String(admission.retryAfter) }
-      );
-    }
-  } catch (err) {
-    // The durable write below remains authoritative. A transient counter failure must
-    // not discard a legitimate lead, but it is visible in Worker logs.
-    console.error("inquiry: rate limit check failed", err);
-  }
-
   let form;
   try {
     var bodyBytes = await readBodyLimited(request);
@@ -251,9 +230,24 @@ export async function onRequestPost(context) {
   // signal the conversion pixel keys on.
   if (clean(form.website, 200)) return json({ ok: true });
 
-  var source = allowlisted(clean(form.source, MAX.source), SOURCE_ALLOWLIST);
-  var channel = allowlisted(clean(form.channel, MAX.channel), CHANNEL_ALLOWLIST);
+  // Honeypot traffic must not consume the shared-IP allowance before it is rejected.
+  // Otherwise five naive bots behind an office NAT can block a real buyer for 10 minutes.
+  try {
+    var admission = await rateLimit(request, env);
+    if (!admission.allowed) {
+      return json(
+        { ok: false, error: "too many enquiries - please try again shortly" },
+        429,
+        { "retry-after": String(admission.retryAfter) }
+      );
+    }
+  } catch (err) {
+    // The durable write below remains authoritative. A transient counter failure must
+    // not discard a legitimate lead, but it is visible in Worker logs.
+    console.error("inquiry: rate limit check failed", err);
+  }
 
+  var source = allowlisted(clean(form.source, MAX.source), SOURCE_ALLOWLIST);
   const payload = {
     name: clean(form.name, MAX.name),
     email: clean(form.email, MAX.email),
@@ -271,13 +265,15 @@ export async function onRequestPost(context) {
     utm_campaign: clean(form.utm_campaign, MAX.utm_campaign),
     utm_term: clean(form.utm_term, MAX.utm_term),
     utm_content: clean(form.utm_content, MAX.utm_content),
-    channel: channel,
     landing_path: clean(form.landing_path, MAX.landing_path),
     landing_referrer: clean(form.landing_referrer, MAX.landing_referrer),
     commodity: clean(form.commodity, MAX.commodity),
     approx_volume: clean(form.approx_volume, MAX.approx_volume),
     received_utc: new Date().toISOString(),
   };
+  // Never trust a hidden `channel` field. Derive it from the captured identifiers,
+  // UTMs and landing referrer so `channel=paid-search` alone cannot poison reporting.
+  payload.channel = classifyChannel(payload);
 
   if (!payload.email || !looksLikeEmail(payload.email)) {
     return json({ ok: false, error: "a valid email address is required" }, 400);
@@ -285,10 +281,6 @@ export async function onRequestPost(context) {
   if (!payload.message) {
     return json({ ok: false, error: "please tell us what you need" }, 400);
   }
-
-  const subject =
-    "Website enquiry [" + payload.source + "] - " +
-    (payload.company || payload.name || payload.email);
 
   // DURABLE FIRST. The visitor is told "sent" only when a durable record exists.
   // Previously Resend ran first and both failures were swallowed behind {ok:true}, so a
@@ -298,7 +290,7 @@ export async function onRequestPost(context) {
   var key = "";
   try {
     if (env.INQUIRIES) {
-      key = "inq:" + payload.received_utc + ":" + Math.random().toString(36).slice(2, 8);
+      key = "inq:" + payload.received_utc + ":" + crypto.randomUUID();
       payload.inquiry_id = key;
       await env.INQUIRIES.put(key, JSON.stringify(payload));
       stored = true;
@@ -316,31 +308,6 @@ export async function onRequestPost(context) {
   if (!stored) {
     // Retryable. The browser keeps the form populated so nothing the visitor typed is lost.
     return json({ ok: false, error: "could not save your enquiry - please email froy@perfect-imports.com" }, 503);
-  }
-
-  // Best-effort immediate notification. The KV relay is the guaranteed path, so a failure
-  // here is logged and never affects what the visitor sees.
-  try {
-    if (env.RESEND_API_KEY && env.INQUIRY_TO) {
-      var body = buildEmailBody(payload);
-      var r = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + env.RESEND_API_KEY,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "Website <website@perfect-imports.com>",
-          to: [env.INQUIRY_TO],
-          reply_to: payload.email,
-          subject: subject,
-          text: body,
-        }),
-      });
-      if (!r.ok) console.error("inquiry: resend failed", r.status);
-    }
-  } catch (err) {
-    console.error("inquiry: resend threw", err);
   }
 
   return json({ ok: true, inquiry_id: key });

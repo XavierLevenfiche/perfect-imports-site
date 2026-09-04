@@ -181,7 +181,14 @@
 
       function looksLikeSearchEngine(value) {
         var s = simpleHost(value);
-        return /(^|[^a-z0-9])(google|bing|yahoo|duckduckgo|ddg|ecosia|yandex|baidu|ask|aol|brave|qwant|startpage)([^a-z0-9]|$)/.test(s);
+        if (['google', 'bing', 'yahoo', 'duckduckgo', 'ddg', 'ecosia', 'yandex',
+             'baidu', 'ask', 'aol', 'brave', 'qwant', 'startpage'].indexOf(s) !== -1) return true;
+        return /(^|\.)(google\.[a-z]{2,}(\.[a-z]{2})?|bing\.com|search\.yahoo\.com|duckduckgo\.com|ecosia\.org|yandex\.[a-z.]+|baidu\.com|ask\.com|aol\.com|search\.brave\.com|qwant\.com|startpage\.com)$/.test(s);
+      }
+
+      function paidSearchMedium(value) {
+        var medium = String(value || '').toLowerCase().replace(/[\s_]+/g, '-');
+        return ['cpc', 'ppc', 'paid', 'paid-search', 'sem'].indexOf(medium) !== -1;
       }
 
       function externalReferrerHost(host) {
@@ -202,7 +209,10 @@
 
         var refHost = hostFrom(document.referrer);
         if (out.gclid || out.gbraid || out.wbraid) out.channel = 'paid-search';
-        else if (out.utm_source) out.channel = looksLikeSearchEngine(out.utm_source) ? 'organic' : 'referral';
+        else if (looksLikeSearchEngine(out.utm_source) && paidSearchMedium(out.utm_medium)) out.channel = 'paid-search';
+        else if (looksLikeSearchEngine(out.utm_source) && (!out.utm_medium || /^(organic|seo)$/i.test(out.utm_medium))) out.channel = 'organic';
+        else if (out.utm_source && paidSearchMedium(out.utm_medium)) out.channel = 'unknown';
+        else if (out.utm_source) out.channel = 'referral';
         else if (looksLikeSearchEngine(refHost)) out.channel = 'organic';
         else if (externalReferrerHost(refHost)) out.channel = 'referral';
         else out.channel = 'direct';
@@ -237,7 +247,9 @@
 
       function choose(stored, current) {
         if (!stored) return current;
-        if (hasClickId(current) && !isAttributable(stored)) return current;
+        // A fresh click id is stronger than stale session attribution, including an
+        // earlier organic/referral visit in the same tab.
+        if (hasClickId(current)) return current;
         if (isAttributable(current) && !isAttributable(stored)) return current;
         return stored;
       }

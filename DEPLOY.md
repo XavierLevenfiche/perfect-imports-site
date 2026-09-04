@@ -34,7 +34,30 @@ Two consequences, both of which have already bitten:
    looks perfect. On 2026-09-03 this took lead capture offline and was only caught by
    probing the endpoint directly.
 
-   **Only `wrangler pages deploy` compiles Functions.** You will see
+   **Only `wrangler pages deploy` compiles Functions.**
+
+**And you MUST `cd` into the directory and deploy `.` — never pass an absolute path.**
+`wrangler pages deploy /abs/path` resolves `functions/` relative to your CURRENT working
+directory, not the deploy target. It finds no functions, says nothing about it, uploads
+the static assets, and still prints "Deployment complete". Lead capture then returns 405.
+
+This is the SAME 405 as the dashboard-zip trap, from a different cause, and it took lead
+capture down a second time on 2026-09-04. The reliable tell is the absence of two lines:
+
+    * Compiled Worker successfully     <- must be present
+    * Uploading Functions bundle       <- must be present
+
+If either is missing, Functions did not ship. Do not trust "Deployment complete", and do
+not truncate wrangler's output when checking.
+
+Correct:
+
+    cd /path/to/staged && npx wrangler@4 pages deploy . --project-name=perfect-imports \
+        --branch=main --commit-dirty=true
+
+Also exclude `.pytest_cache/` from the staged copy - it appears if pytest has been run in
+the source tree and adds noise files to the deployment.
+ You will see
    `✨ Compiled Worker successfully` and `✨ Uploading Functions bundle` in its output.
    If those two lines are absent, Functions did not ship.
 

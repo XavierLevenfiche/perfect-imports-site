@@ -391,7 +391,15 @@
               }
               return;
             }
-            if (d && d.ok) { finish(); return; }
+            // No inquiry_id means nothing durably landed - a filled honeypot returns
+            // {ok:true} and stores nothing. Never redirect to /thanks/ on bare ok: it
+            // tells a real buyer we have their enquiry when we do not, and fires a
+            // generate_lead for a lead that does not exist.
+            if (d && d.ok) {
+              resetSubmit();
+              s.textContent = 'Something went wrong. Please email me directly at froy@perfect-imports.com.';
+              return;
+            }
             resetSubmit();
             s.textContent = (d && d.error) || 'Something went wrong. Please email me directly.';
           })

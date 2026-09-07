@@ -484,7 +484,16 @@
           fetch(f.action, { method: 'POST', body: formData })
             .then(function (r) { return r.json(); })
             .then(function (d) {
-              if (d && d.ok) { window.location.href = '/thanks/'; return; }
+              // inquiry_id is the durable-write signal. `ok` alone is not proof of
+              // storage - a filled honeypot returns {ok:true} and stores nothing - so
+              // redirecting on bare ok tells a real buyer we have their enquiry when we
+              // do not, and fires generate_lead on /thanks/ for a lead that does not exist.
+              if (d && d.ok && d.inquiry_id) { window.location.href = '/thanks/'; return; }
+              if (d && d.ok) {
+                resetSubmit();
+                s.textContent = 'Something went wrong. Please email me directly at froy@perfect-imports.com.';
+                return;
+              }
               resetSubmit();
               s.textContent = (d && d.error) || 'Something went wrong. Please email me directly.';
             })

@@ -151,6 +151,13 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'AW-18417846877');
+    gtag('config', 'G-7ECPZLEWS6'); // GA4, 2026-09-06: same Google tag, adds Analytics
+    // Lead-path test (memo 2026-09-01): this page is reached only after a
+    // successful inquiry POST, so one load = one lead. GA4 gets the standard
+    // generate_lead event; Ads gets a conversion once the label exists.
+    gtag('event', 'generate_lead', { currency: 'USD', value: 0 });
+    // Ads counts this same event: GA4 is linked in Ads (Goals) and
+    // generate_lead is imported as the conversion, so no AW- label is needed.
   </script>
 </head>
 <body>

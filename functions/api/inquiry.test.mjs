@@ -56,27 +56,71 @@ function inquiryPuts(kv) {
   return kv.puts.filter((item) => item.key.startsWith("inq:"));
 }
 
+function quarantinePuts(kv) {
+  return kv.puts.filter((item) => item.key.startsWith("quarantine:inq:"));
+}
+
 function storedRecord(kv, index = 0) {
   return JSON.parse(inquiryPuts(kv)[index].value);
 }
 
-test("honeypot is explicitly not accepted or stored and creates no record", async () => {
+test("honeypot is durably quarantined but never accepted as a lead", async () => {
+  // This used to assert 200/ok:true with no ID and no storage. That pinned the bug:
+  // human clients could treat a discarded autofill trip as a received enquiry. The
+  // replacement contract preserves bot ambiguity with a 200 response and an opaque ID,
+  // but the explicit non-acceptance bit prevents thanks-page receipts and conversions.
   const kv = new MockKV();
 
   const response = await worker.onRequestPost({
-    request: formRequest("203.0.113.9", "bonded-warehousing", { website: "https://bot.test" }),
+    request: formRequest("203.0.113.9", "bonded-warehousing", { pi_inquiry_extra: "https://bot.test" }),
     env: { INQUIRIES: kv },
   });
   const body = await response.json();
+  const puts = quarantinePuts(kv);
 
-  assert.equal(response.status, 422);
+  assert.equal(response.status, 200);
   assert.equal(body.ok, false);
   assert.equal(body.accepted, false);
-  assert.equal(body.stored, false);
-  assert.equal(Object.hasOwn(body, "inquiry_id"), false);
+  assert.equal(body.stored, true);
+  assert.match(body.inquiry_id, /^inq:/);
+  assert.ok(body.inquiry_id.length <= 64);
   assert.equal(inquiryPuts(kv).length, 0);
-  assert.equal(kv.gets.length, 0);
-  assert.equal(kv.puts.length, 0);
+  assert.equal(puts.length, 1);
+  assert.equal(puts[0].key, "quarantine:" + body.inquiry_id);
+  const record = JSON.parse(puts[0].value);
+  assert.equal(record.inquiry_id, body.inquiry_id);
+  assert.equal(record.email, "buyer@example.com");
+  assert.equal(record.message, "Please contact me");
+  assert.equal(record.quarantined, true);
+  assert.equal(record.accepted, false);
+  assert.deepEqual(record.quarantine, {
+    reason: "honeypot_filled",
+    field: "pi_inquiry_extra",
+    value_length: "https://bot.test".length,
+    review_required: true,
+    normal_relay: false,
+  });
+  assert.equal(kv.puts.some((item) => item.key.startsWith("rate:inquiry:")), false);
+  assert.equal(kv.puts.filter((item) => item.key.startsWith("rate:inquiry-honeypot:")).length, 1);
+});
+
+test("legacy website honeypot remains active during cached HTML rollout", async () => {
+  const kv = new MockKV();
+
+  const response = await worker.onRequestPost({
+    request: formRequest("203.0.113.91", "contact-section", { website: "cached-autofill.example" }),
+    env: { INQUIRIES: kv },
+  });
+  const body = await response.json();
+  const record = JSON.parse(quarantinePuts(kv)[0].value);
+
+  assert.equal(response.status, 200);
+  assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, true);
+  assert.match(body.inquiry_id, /^inq:/);
+  assert.equal(inquiryPuts(kv).length, 0);
+  assert.equal(record.quarantine.field, "website");
 });
 
 test("successful submissions return the durable inquiry id that was written", async () => {
@@ -553,9 +597,10 @@ test("native HTML confirmation is returned only after confirmed storage", async 
 test("native honeypot and storage errors cannot render a received heading", async () => {
   for(const mode of ['honeypot','no-binding']) {
     const kv=new MockKV();
-    const response=await worker.onRequestPost({request:formRequest('203.0.113.41','contact-section',mode==='honeypot'?{website:'autofill.example'}:{},{accept:'text/html'}),env:mode==='no-binding'?{}:{INQUIRIES:kv}});
-    assert.equal(response.status,mode==='honeypot'?422:503);
+    const response=await worker.onRequestPost({request:formRequest('203.0.113.41','contact-section',mode==='honeypot'?{pi_inquiry_extra:'autofill.example'}:{},{accept:'text/html'}),env:mode==='no-binding'?{}:{INQUIRIES:kv}});
+    assert.equal(response.status,mode==='honeypot'?200:503);
     const html=await response.text();assert.match(html,/<h1>Enquiry not confirmed<\/h1>/);assert.equal(inquiryPuts(kv).length,0);
+    assert.equal(quarantinePuts(kv).length,mode==='honeypot'?1:0);
   }
 });
 

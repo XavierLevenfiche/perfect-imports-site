@@ -50,9 +50,10 @@ capture down a second time on 2026-09-04. The reliable tell is the absence of tw
 If either is missing, Functions did not ship. Do not trust "Deployment complete", and do
 not truncate wrangler's output when checking.
 
-Correct:
+Correct. The checked wrapper runs the claim check against the staged site directory
+first, then `cd`s into that same directory and deploys `.`:
 
-    cd /path/to/staged && npx wrangler@4 pages deploy . --project-name=perfect-imports \
+    /path/to/repo/ads/deploy_site_checked.sh /path/to/staged --project-name=perfect-imports \
         --branch=main --commit-dirty=true
 
 Also exclude `.pytest_cache/` from the staged copy - it appears if pytest has been run in
@@ -65,10 +66,10 @@ the source tree and adds noise files to the deployment.
 
 ## Deploying
 
-From a clean copy of this directory:
+From the repository root, after staging `/tmp/pi-deploy`:
 
 ```bash
-npx --yes wrangler@4 pages deploy . \
+ads/deploy_site_checked.sh /tmp/pi-deploy \
   --project-name=perfect-imports \
   --branch=main \
   --commit-dirty=true \
@@ -94,8 +95,7 @@ rsync -a --exclude '.git' --exclude '.wrangler' --exclude '.gitignore' \
 Any `--branch` other than `main` produces a testable URL without touching production:
 
 ```bash
-cd /tmp/pi-deploy
-npx --yes wrangler@4 pages deploy . --project-name=perfect-imports \
+ads/deploy_site_checked.sh /tmp/pi-deploy --project-name=perfect-imports \
   --branch=preflight --commit-dirty=true
 ```
 
@@ -255,4 +255,4 @@ operator rescue aid; neither log retention nor operator recovery is guaranteed b
 change. Success logging contains only the durable ID. Never treat a rescue log as proof
 that an ambiguous write did not commit.
 
-A visible 422 lets bots distinguish honeypot rejection; that deliberate trade makes discarded submissions honest. Inspect the content-hashed asset cache policy; immutable caching is compatible with its filename, but do not apply it to HTML.
+Honeypot trips are durably stored under `quarantine:inq:` with `quarantined:true` and `accepted:false`; the response is HTTP 200 with a normal bounded `inq:` ID, but it is not a receipt or conversion contract. Do not broaden the relay's normal `inq:` delivery prefix or remove the quarantine guard without adding a reviewed path. Inspect the content-hashed asset cache policy; immutable caching is compatible with its filename, but do not apply it to HTML.

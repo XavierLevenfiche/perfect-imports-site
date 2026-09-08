@@ -82,6 +82,7 @@ for (const page of ['index.html','bonded-warehousing/index.html']) {
     for(const reply of [
       {body:{ok:true}}, {body:{ok:true,inquiry_id:ID}},
       {body:{...accepted,stored:false}}, {body:{...accepted,stored:null}},
+      {body:{ok:false,accepted:false,stored:true,inquiry_id:ID}},
       {body:{...accepted,accepted:'true'}}, {body:{...accepted,ok:'true'}},
       {httpOk:false,body:accepted},{body:{...accepted,inquiry_id:'x'.repeat(65)}},
       {body:{...accepted,inquiry_id:123}},{jsonError:true},new Error('network')

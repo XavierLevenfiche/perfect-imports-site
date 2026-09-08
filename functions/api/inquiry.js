@@ -37,6 +37,12 @@ const MAX = {
   approx_volume: 120,
 };
 
+const HONEYPOT_FIELD = "pi_inquiry_extra";
+const LEGACY_HONEYPOT_FIELD = "website";
+const INQUIRY_PREFIX = "inq:";
+const HONEYPOT_QUARANTINE_KEY_PREFIX = "quarantine:";
+const HONEYPOT_RATE_LIMIT_PREFIX = "rate:inquiry-honeypot:";
+
 const SOURCE_ALLOWLIST = [
   "bonded-warehousing",
   "verified-buyer-list-79",
@@ -79,6 +85,16 @@ function looksLikeEmail(v) {
 
 function allowlisted(v, allowed) {
   return allowed.indexOf(v) !== -1 ? v : "unknown";
+}
+
+function filledHoneypot(form) {
+  // Keep the legacy field during rollout so old cached HTML cannot silently turn the
+  // honeypot off. The new field name is deliberately not a browser profile target.
+  for (const field of [HONEYPOT_FIELD, LEGACY_HONEYPOT_FIELD]) {
+    var value = clean(form[field], 200);
+    if (value) return { field: field, valueLength: value.length };
+  }
+  return null;
 }
 
 function simpleHost(value) {
@@ -191,7 +207,7 @@ async function parseBody(request, body) {
   return Object.fromEntries(parsed);
 }
 
-async function rateLimit(request, env) {
+async function rateLimit(request, env, keyPrefix) {
   // Cloudflare supplies CF-Connecting-IP at the edge. Hash it before using it in a KV
   // key so raw visitor addresses are not retained. KV counters are deliberately scoped
   // away from the `inq:` delivery prefix and expire shortly after their fixed window.
@@ -203,7 +219,7 @@ async function rateLimit(request, env) {
     .join("");
   var nowSeconds = Math.floor(Date.now() / 1000);
   var window = Math.floor(nowSeconds / RATE_LIMIT.windowSeconds);
-  var key = "rate:inquiry:" + window + ":" + hash;
+  var key = (keyPrefix || "rate:inquiry:") + window + ":" + hash;
   var count = Number(await env.INQUIRIES.get(key)) || 0;
   var retryAfter = RATE_LIMIT.windowSeconds - (nowSeconds % RATE_LIMIT.windowSeconds);
   if (count >= RATE_LIMIT.attempts) {
@@ -213,6 +229,33 @@ async function rateLimit(request, env) {
     expirationTtl: RATE_LIMIT.windowSeconds + 60,
   });
   return { allowed: true };
+}
+
+function makeInquiryId(receivedUtc) {
+  return INQUIRY_PREFIX + receivedUtc.replace(/\.\d{3}Z$/, "Z") + ":" + crypto.randomUUID();
+}
+
+async function persistInquiry(env, payload, keyPrefix) {
+  var key = "";
+  var storageUnknown = false;
+  try {
+    if (env.INQUIRIES) {
+      // Seconds + UUID keeps the durable public ID at 61 characters (Ads maximum 64).
+      // received_utc keeps full precision in the record.
+      var inquiryId = makeInquiryId(payload.received_utc);
+      key = (keyPrefix || "") + inquiryId;
+      payload.inquiry_id = inquiryId;
+      await env.INQUIRIES.put(key, JSON.stringify(payload));
+      return { stored: true, key: key, inquiryId: inquiryId, storageUnknown: false };
+    }
+    console.error("inquiry: KV binding INQUIRIES missing");
+  } catch (err) {
+    // A failed acknowledgement does not prove the write never committed.
+    storageUnknown = true;
+    console.error("inquiry: KV write failed", key, err);
+    delete payload.inquiry_id;
+  }
+  return { stored: false, key: key, inquiryId: "", storageUnknown: storageUnknown };
 }
 
 export async function onRequestPost(context) {
@@ -239,27 +282,25 @@ export async function onRequestPost(context) {
     return respond({ ok: false, error: "could not read the form" }, 400);
   }
 
-  // A discarded submission is never accepted or stored, even if autofill hit the
-  // hidden field. Keep the buyer's form intact and offer a real contact fallback.
-  if (clean(form.website, 200)) {
-    return respond({ ok: false, error: "We could not accept this enquiry. Please email froy@perfect-imports.com." }, 422);
-  }
+  var honeypot = filledHoneypot(form);
 
-  // Honeypot traffic must not consume the shared-IP allowance before it is rejected.
+  // Honeypot traffic must not consume the shared-IP allowance before it is isolated.
   // Otherwise five naive bots behind an office NAT can block a real buyer for 10 minutes.
-  try {
-    var admission = await rateLimit(request, env);
-    if (!admission.allowed) {
-      return respond(
-        { ok: false, error: "too many enquiries - please try again shortly" },
-        429,
-        { "retry-after": String(admission.retryAfter) }
-      );
+  if (!honeypot) {
+    try {
+      var admission = await rateLimit(request, env);
+      if (!admission.allowed) {
+        return respond(
+          { ok: false, error: "too many enquiries - please try again shortly" },
+          429,
+          { "retry-after": String(admission.retryAfter) }
+        );
+      }
+    } catch (err) {
+      // The durable write below remains authoritative. A transient counter failure must
+      // not discard a legitimate lead, but it is visible in Worker logs.
+      console.error("inquiry: rate limit check failed", err);
     }
-  } catch (err) {
-    // The durable write below remains authoritative. A transient counter failure must
-    // not discard a legitimate lead, but it is visible in Worker logs.
-    console.error("inquiry: rate limit check failed", err);
   }
 
   var source = allowlisted(clean(form.source, MAX.source), SOURCE_ALLOWLIST);
@@ -297,30 +338,54 @@ export async function onRequestPost(context) {
     return respond({ ok: false, error: "please tell us what you need" }, 400);
   }
 
+  if (honeypot) {
+    try {
+      var quarantineAdmission = await rateLimit(request, env, HONEYPOT_RATE_LIMIT_PREFIX);
+      if (!quarantineAdmission.allowed) {
+        return respond(
+          { ok: false, error: "too many enquiries - please try again shortly" },
+          429,
+          { "retry-after": String(quarantineAdmission.retryAfter) }
+        );
+      }
+    } catch (err) {
+      console.error("inquiry: honeypot rate limit check failed", err);
+    }
+
+    payload.quarantined = true;
+    payload.accepted = false;
+    payload.quarantine = {
+      reason: "honeypot_filled",
+      field: honeypot.field,
+      value_length: honeypot.valueLength,
+      review_required: true,
+      normal_relay: false,
+    };
+
+    var quarantine = await persistInquiry(env, payload, HONEYPOT_QUARANTINE_KEY_PREFIX);
+    if (!quarantine.stored) {
+      console.error("INQUIRY_UNSAVED", JSON.stringify(payload), quarantine.key || null);
+      return respond({ ok: false, stored: quarantine.storageUnknown ? null : false, error: "We could not confirm your enquiry was received. Please retry or email froy@perfect-imports.com." }, 503);
+    }
+
+    console.log("INQUIRY_QUARANTINED", quarantine.key);
+    return respond({
+      ok: false,
+      accepted: false,
+      stored: true,
+      inquiry_id: quarantine.inquiryId,
+      error: "We could not accept this enquiry. Please email froy@perfect-imports.com.",
+    });
+  }
+
   // DURABLE FIRST. The visitor is told "sent" only when a durable record exists.
   // Previously Resend ran first and both failures were swallowed behind {ok:true}, so a
   // provider outage or a missing binding silently lost the lead while the form reset and
   // said thank you. Logging is not acceptance.
-  var stored = false;
-  var storageUnknown = false;
-  var key = "";
-  try {
-    if (env.INQUIRIES) {
-      // Seconds + UUID keeps the durable key at 61 characters (Ads maximum 64).
-      // received_utc retains its original full precision in the record.
-      key = "inq:" + payload.received_utc.replace(/\.\d{3}Z$/, "Z") + ":" + crypto.randomUUID();
-      payload.inquiry_id = key;
-      await env.INQUIRIES.put(key, JSON.stringify(payload));
-      stored = true;
-    } else {
-      console.error("inquiry: KV binding INQUIRIES missing");
-    }
-  } catch (err) {
-    // A failed acknowledgement does not prove the write never committed.
-    storageUnknown = true;
-    console.error("inquiry: KV write failed", key, err);
-    delete payload.inquiry_id;
-  }
+  var persisted = await persistInquiry(env, payload);
+  var stored = persisted.stored;
+  var storageUnknown = persisted.storageUnknown;
+  var key = persisted.key;
 
   if (!stored) {
     // Preserve the existing operator rescue path only on failure. All fields were

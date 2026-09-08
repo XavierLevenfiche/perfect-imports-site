@@ -35,7 +35,7 @@ async function browser(page, replies = [], config = {}) {
     action:'https://example.test/api/inquiry',
     querySelector(selector){return selector==='[role="status"]'?(config.missingStatus?null:status):button;},
     getAttribute(name){return name==='data-conversion-send-to'?sendTo:null;},
-    addEventListener(name,callback){handlers[name]=callback;}
+    addEventListener(name,callback){(handlers[name] ??= []).push(callback);}
   };
   const sessionStorage={
     getItem(key){if(config.storageBlocked)throw new Error('blocked');return values.get(key)??null;},
@@ -47,7 +47,7 @@ async function browser(page, replies = [], config = {}) {
     gtag(...args){events.push(args);if(config.gtagThrows)throw new Error('unavailable');if(config.syncCallbacks)args[2].event_callback();}
   };
   const context=vm.createContext({window,URL,URLSearchParams,document:{referrer:'',querySelector(){return page.startsWith('thanks')?null:form;},
-    getElementById(id){return page.startsWith('thanks')?nodes[id]:null;},
+    getElementById(id){return page.startsWith('thanks')?nodes[id]:({'inquiry-form':form,'inquiry-status':status}[id]??null);},
     querySelectorAll(){return page.startsWith('thanks')?[]:[form];}
   },FormData:class extends Map{constructor(){super([['email','buyer@example.com'],['message','Synthetic enquiry']]);}},
   AbortController,setTimeout(callback,ms){const key=++nextTimer;timers.set(key,{callback,ms});return key;},
@@ -59,11 +59,12 @@ async function browser(page, replies = [], config = {}) {
     if(typeof reply==='function')return reply();
     return Promise.resolve({ok:reply?.httpOk??true,json:()=>reply?.jsonError?Promise.reject(new Error('bad JSON')):Promise.resolve(reply?.body)});
   }});
-  if(page.startsWith('thanks')){
+  {
     const dataLayer=[];
     dataLayer.push=function(entry){if(entry && entry[0]==='event')events.push(Array.from(entry));return Array.prototype.push.call(this,entry);};
     context.dataLayer=dataLayer;window.dataLayer=dataLayer;
-    // Execute actual inline scripts too: page-load events bypass the shared asset.
+    // Execute every page's actual inline scripts before its deferred form asset.
+    // An added submit handler must remain visible alongside the shared handler.
     for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)){
       if(!/\bsrc=|application\/ld\+json/.test(match[1]))vm.runInContext(match[2],context,{filename:page+':inline'});
     }
@@ -71,7 +72,7 @@ async function browser(page, replies = [], config = {}) {
   vm.runInContext(code,context,{filename:asset});
   if(config.attributionThrows)window.piInquiryAttribution.apply=function(){throw new Error('synthetic attribution failure');};
   return {events,redirects,requests,status,button,nodes,timers,handlers,
-    async submit(){handlers.submit({preventDefault(){}});await flush();await flush();},
+    async submit(){for(const callback of handlers.submit??[])callback({preventDefault(){}});await flush();await flush();},
     async runTimers(ms){for(const [id,timer]of timers){if(timer.ms===ms){timers.delete(id);timer.callback();}}await flush();}
   };
 }

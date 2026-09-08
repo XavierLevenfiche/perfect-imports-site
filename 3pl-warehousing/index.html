@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<!-- Perfect Imports - 3PL warehousing route. Static, single file, no build step. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3PL Warehousing in Miami &amp; Fort Lauderdale | Perfect Imports</title>
+<meta name="description" content="Perfect Imports provides South Florida 3PL warehousing: pallet storage, receiving and put-away, pick/pack, outbound distribution, and ambient climate-controlled racking near Port Everglades and PortMiami.">
+<link rel="icon" type="image/png" href="/assets/favicon-48.png">
+<link rel="canonical" href="https://perfect-imports.com/3pl-warehousing/">
+<meta property="og:title" content="Perfect Imports - South Florida 3PL Warehousing">
+<meta property="og:description" content="Pallet storage, receiving, pick/pack and outbound distribution near Port Everglades and PortMiami.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://perfect-imports.com/3pl-warehousing/">
+<meta property="og:image" content="https://perfect-imports.com/assets/cover-banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500;1,8..60,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pine:#162d23;
+    --pine-2:#214237;
+    --paper:#f7f4ec;
+    --white:#fffdf8;
+    --ink:#17221d;
+    --muted:#5f6a63;
+    --line:#ddd7c8;
+    --brass:#b98237;
+    --brass-dark:#744d1f;
+    --steel:#42616a;
+    --terracotta:#ae4e3d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"kern" 1;
+  }
+  a{color:inherit;text-decoration:none}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+  .kick{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:12px;
+    letter-spacing:0;
+    text-transform:uppercase;
+    color:var(--brass-dark);
+    font-weight:700;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:46px;
+    font-weight:700;
+    font-size:15px;
+    padding:13px 22px;
+    border-radius:4px;
+    border:1.5px solid transparent;
+    line-height:1;
+    transition:background .18s,border-color .18s,color .18s,box-shadow .18s;
+  }
+  .btn.solid{background:var(--brass);color:var(--pine);border-color:var(--brass)}
+  .btn.solid:hover{background:var(--brass-dark);border-color:var(--brass-dark);color:var(--white)}
+  .btn.ghost{background:transparent;color:var(--pine);border-color:rgba(22,45,35,.34)}
+  .btn.ghost:hover{border-color:var(--pine);background:rgba(22,45,35,.05)}
+  .btn.on-dark{background:var(--brass);color:var(--pine);border-color:var(--brass);min-height:38px;padding:10px 18px;font-size:13px}
+  .btn.on-dark:hover{background:#d0a252;border-color:#d0a252}
+  .link{color:var(--brass-dark);font-weight:700;border-bottom:1.5px solid var(--brass);padding-bottom:1px}
+  .link:hover{color:var(--pine);border-color:var(--pine)}
+  a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+    outline:2px solid var(--terracotta);
+    outline-offset:3px;
+  }
+
+  header{position:sticky;top:0;z-index:60;background:var(--pine);border-bottom:1px solid rgba(255,253,248,.12)}
+  .nav{display:flex;align-items:center;justify-content:space-between;min-height:74px;gap:22px}
+  .brand{display:flex;align-items:center;gap:13px;color:var(--white)}
+  .brand img{height:34px;width:auto}
+  .brand .brand-copy{display:block;line-height:1.12}
+  .brand .brand-copy b{display:block;font-family:"Source Serif 4",Georgia,serif;font-size:21px;font-weight:650;color:var(--white)}
+  .brand .brand-copy span{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10px;letter-spacing:0;text-transform:uppercase;color:rgba(255,253,248,.66);margin-top:2px}
+  .links{display:flex;align-items:center;gap:26px;color:rgba(255,253,248,.82);font-size:13px;font-weight:700;text-transform:uppercase}
+  .links a:not(.btn){padding:4px 0}
+  .links a:not(.btn):hover{color:var(--white)}
+
+  .hero{padding:86px 0 78px;background:linear-gradient(180deg,var(--paper) 0%,#f0eadc 100%);overflow:hidden}
+  .hero-grid{display:grid;grid-template-columns:1.04fr .96fr;gap:54px;align-items:center}
+  .hero h1{
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:64px;
+    line-height:1.05;
+    font-weight:650;
+    color:var(--pine);
+    margin-top:18px;
+    max-width:760px;
+  }
+  .hero h1 em{font-style:italic;color:var(--brass-dark)}
+  .sub{font-size:19px;color:var(--muted);max-width:610px;margin:24px 0 30px;line-height:1.58}
+  .cta{display:flex;gap:14px;flex-wrap:wrap}
+  .proofbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+  .proofbar span{
+    display:inline-flex;
+    align-items:center;
+    min-height:34px;
+    border:1px solid var(--line);
+    background:rgba(255,253,248,.78);
+    border-radius:4px;
+    padding:8px 12px;
+    font-size:13px;
+    color:var(--pine);
+    font-weight:700;
+  }
+  .ops-panel{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 18px 44px rgba(23,34,29,.12);
+  }
+  .ops-image{
+    min-height:170px;
+    background:
+      linear-gradient(90deg,rgba(22,45,35,.86),rgba(22,45,35,.18)),
+      url("/assets/cover-banner.png") center / cover no-repeat;
+    color:var(--white);
+    display:flex;
+    align-items:flex-end;
+    padding:24px;
+  }
+  .ops-image p{font-family:"Source Serif 4",Georgia,serif;font-size:26px;font-weight:650;line-height:1.15;max-width:340px}
+  .ops-board{padding:26px}
+  .ops-board h2{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:29px;
+    line-height:1.15;
+    font-weight:650;
+    color:var(--pine);
+  }
+  .route-list{display:grid;gap:0;margin-top:18px;border-top:1px solid var(--line)}
+  .route-list div{display:grid;grid-template-columns:96px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+  .route-list b{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:0;text-transform:uppercase;color:var(--steel)}
+  .route-list span{font-size:15px;color:var(--muted)}
+
+  section{padding:78px 0}
+  section.alt{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  h2.section-title{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:44px;
+    line-height:1.1;
+    font-weight:650;
+    color:var(--pine);
+    margin-top:12px;
+    max-width:620px;
+  }
+  .lead{font-size:18px;color:var(--muted);max-width:700px;margin-top:16px}
+  .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  .service{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:27px;
+    min-height:214px;
+  }
+  .service .num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--terracotta);font-weight:700}
+  .service h3{font-family:"Source Serif 4",Georgia,serif;font-size:25px;line-height:1.17;font-weight:650;color:var(--pine);margin:10px 0 12px}
+  .service p{font-size:15px;color:var(--muted)}
+  .split{display:grid;grid-template-columns:.82fr 1.18fr;gap:48px;align-items:start}
+  .flow{display:grid;gap:14px}
+  .step{
+    display:grid;
+    grid-template-columns:70px 1fr;
+    gap:18px;
+    padding:21px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .step:first-child{border-top:1px solid var(--line)}
+  .step b{font-family:"IBM Plex Mono",ui-monospace,monospace;color:var(--brass-dark);font-size:13px;text-transform:uppercase;letter-spacing:0}
+  .step h3{font-size:20px;line-height:1.25;color:var(--pine);margin-bottom:5px}
+  .step p{font-size:15px;color:var(--muted)}
+  .band{background:var(--pine);color:var(--white)}
+  .band .kick{color:#d0a252}
+  .band h2.section-title{color:var(--white)}
+  .band .lead{color:rgba(255,253,248,.78)}
+  .port-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:36px}
+  .port{
+    border:1px solid rgba(255,253,248,.18);
+    border-radius:6px;
+    padding:28px;
+    background:rgba(255,253,248,.04);
+    min-height:186px;
+  }
+  .port h3{font-family:"Source Serif 4",Georgia,serif;font-size:24px;font-weight:650;margin-bottom:12px}
+  .port p{font-size:15px;color:rgba(255,253,248,.76)}
+  .limits{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+    margin-top:34px;
+  }
+  .limit{
+    border-left:3px solid var(--terracotta);
+    padding:8px 0 8px 18px;
+  }
+  .limit.good{border-left-color:var(--steel)}
+  .limit h3{font-size:19px;color:var(--pine);margin-bottom:6px}
+  .limit p{font-size:15px;color:var(--muted)}
+  .contact{text-align:center}
+  .contact h2.section-title{margin-left:auto;margin-right:auto}
+  .contact .lead{margin-left:auto;margin-right:auto;margin-bottom:30px}
+  .form-box{
+    max-width:550px;
+    margin:0 auto;
+    text-align:left;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px;
+  }
+  .field-grid{display:grid;gap:10px}
+  input,textarea{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid rgba(23,34,29,.22);
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+    font:inherit;
+  }
+  textarea{resize:vertical;min-height:116px}
+  .status{margin:.7rem 0 0;min-height:1.2em;color:var(--muted);font-size:14px}
+  .fine{margin-top:12px;color:var(--muted);font-size:13px}
+  .sig{margin-top:22px;font-weight:700;color:var(--pine);font-size:15px}
+  .sig span{font-weight:400;color:var(--muted)}
+  footer{background:var(--pine);color:rgba(255,253,248,.64);padding:44px 0;font-size:13px}
+  .foot{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;flex-wrap:wrap}
+  .foot .brand img{height:30px}
+  .cols{display:flex;gap:56px;flex-wrap:wrap}
+  .col b{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:0;text-transform:uppercase;color:#d0a252;margin-bottom:9px}
+  .col a,.col span{display:block;color:rgba(255,253,248,.8);padding:3px 0}
+  .col a:hover{color:var(--white)}
+  .base{width:100%;border-top:1px solid rgba(255,253,248,.12);margin-top:24px;padding-top:19px;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;letter-spacing:0}
+  .legal{margin-top:9px;font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:13px}
+  .legal a{color:rgba(255,253,248,.82)}
+  .legal a:hover{color:var(--white)}
+  @media(max-width:920px){
+    .hero{padding:64px 0}
+    .hero-grid,.split{grid-template-columns:1fr;gap:34px}
+    .hero h1{font-size:49px}
+    .service-grid,.port-grid{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:720px){
+    .wrap{padding:0 20px}
+    .links a:not(.btn){display:none}
+    .hero h1{font-size:39px}
+    h2.section-title{font-size:34px}
+    .sub,.lead{font-size:16.5px}
+    .service-grid,.port-grid,.limits{grid-template-columns:1fr}
+    .route-list div,.step{grid-template-columns:1fr;gap:6px}
+    section{padding:58px 0}
+    .form-box{padding:18px}
+  }
+  @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}
+</style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "additionalType": "https://schema.org/Warehouse",
+    "name": "Perfect Imports LLC",
+    "url": "https://perfect-imports.com/3pl-warehousing/",
+    "email": "froy@perfect-imports.com",
+    "image": "https://perfect-imports.com/assets/cover-banner.png",
+    "description": "South Florida 3PL warehousing for pallet storage, receiving, pick and pack, outbound distribution and ambient climate-controlled racking.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "3259 SW 11th Ave",
+      "addressLocality": "Fort Lauderdale",
+      "addressRegion": "FL",
+      "postalCode": "33315",
+      "addressCountry": "US"
+    },
+    "areaServed": [
+      {"@type": "City", "name": "Fort Lauderdale"},
+      {"@type": "City", "name": "Miami"},
+      {"@type": "State", "name": "Florida"}
+    ],
+    "knowsAbout": [
+      "3PL warehousing",
+      "pallet storage",
+      "receiving and put-away",
+      "pick and pack fulfillment",
+      "outbound distribution",
+      "Port Everglades logistics",
+      "PortMiami distribution"
+    ]
+  }
+  </script>
+  <!-- Google tag (gtag.js) - Google Ads AW-18417846877. Conversion fires only after a durable inquiry id. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18417846877"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18417846877');
+    gtag('config', 'G-7ECPZLEWS6'); // GA4, 2026-09-06: same Google tag, adds Analytics
+  </script>
+</head>
+<body id="top">
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <img src="/assets/logo-web.png" alt="Perfect Imports">
+      <span class="brand-copy"><b>Perfect Imports</b><span>LLC &middot; Fort Lauderdale, FL</span></span>
+    </a>
+    <nav class="links">
+      <a href="#services">Services</a>
+      <a href="#flow">Flow</a>
+      <a href="#ports">Ports</a>
+      <a href="#contact" class="btn on-dark">Get pricing</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="kick">Miami &middot; Fort Lauderdale &middot; South Florida 3PL</p>
+      <h1>Warehouse space is not the product. <em>Throughput is.</em></h1>
+      <p class="sub">Perfect Imports gives importers and growing brands a Fort Lauderdale 3PL base for pallet storage, receiving and put-away, pick/pack, outbound shipping, and distribution across South Florida.</p>
+      <div class="cta">
+        <a href="#contact" class="btn solid">Talk to Froy</a>
+        <a href="#services" class="btn ghost">See services</a>
+      </div>
+      <div class="proofbar">
+        <span>Pallet storage</span>
+        <span>Racked warehouse</span>
+        <span>Ambient climate control around 72&deg;F</span>
+        <span>No chilled or frozen storage</span>
+      </div>
+    </div>
+    <div class="ops-panel" aria-label="Perfect Imports 3PL operations summary">
+      <div class="ops-image">
+        <p>Inbound pallets in. Orders out. One operator accountable.</p>
+      </div>
+      <div class="ops-board">
+        <h2>Built for practical 3PL work.</h2>
+        <div class="route-list">
+          <div><b>Receive</b><span>Inbound pallet receipt, count checks, and put-away into racking.</span></div>
+          <div><b>Store</b><span>Ambient, climate-controlled space for goods that do not require cold chain.</span></div>
+          <div><b>Ship</b><span>Pick/pack, pallet-out, parcel-ready handoff, and outbound distribution support.</span></div>
+          <div><b>Answer</b><span>Froy Monteverde handles the conversation directly.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services" class="alt">
+  <div class="wrap">
+    <p class="kick">What you can buy here</p>
+    <h2 class="section-title">3PL warehousing for brands that need product moving, not excuses.</h2>
+    <p class="lead">Bring the pallet count, SKU count, order profile, and timing. Perfect Imports will tell you quickly whether the work fits the facility and what the next operating step is.</p>
+    <div class="service-grid">
+      <div class="service">
+        <span class="num">01</span>
+        <h3>Pallet storage</h3>
+        <p>Short-run or recurring pallet storage in a racked Fort Lauderdale warehouse, with ambient climate control around 72&deg;F for non-cold-chain goods.</p>
+      </div>
+      <div class="service">
+        <span class="num">02</span>
+        <h3>Receiving and put-away</h3>
+        <p>Inbound receiving, visible counts, organized put-away, and a clean handoff from arrival to stored inventory.</p>
+      </div>
+      <div class="service">
+        <span class="num">03</span>
+        <h3>Pick/pack and outbound</h3>
+        <p>Order picking, packing, pallet-out handling, and outbound coordination so inventory can leave on schedule.</p>
+      </div>
+      <div class="service">
+        <span class="num">04</span>
+        <h3>Distribution support</h3>
+        <p>South Florida distribution support for importers, consumer brands, wholesale programs, and recurring replenishment moves.</p>
+      </div>
+      <div class="service">
+        <span class="num">05</span>
+        <h3>Port access</h3>
+        <p>A Fort Lauderdale base for Port Everglades, PortMiami, and regional delivery lanes.</p>
+      </div>
+      <div class="service">
+        <span class="num">06</span>
+        <h3>Direct operator contact</h3>
+        <p>No anonymous intake desk. You talk to the person accountable for the warehouse answer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wrap split">
+    <div>
+      <p class="kick">How it starts</p>
+      <h2 class="section-title">Send the facts. Get a real operating answer.</h2>
+      <p class="lead">The fastest quote is not a brochure. It is a short operational fit check: what is coming in, where it is going, how often it moves, and whether the facility is right for the product.</p>
+    </div>
+    <div class="flow">
+      <div class="step">
+        <b>Step 1</b>
+        <div>
+          <h3>Tell us the pallet count and SKU profile.</h3>
+          <p>Include product type, case or pallet dimensions if you have them, and whether the inventory moves by pallet, case, or each.</p>
+        </div>
+      </div>
+      <div class="step">
+        <b>Step 2</b>
+        <div>
+          <h3>Spell out the inbound and outbound rhythm.</h3>
+          <p>One container, recurring inbound, retail replenishment, wholesale distribution, or parcel-heavy pick/pack all price differently.</p>
+        </div>
+      </div>
+      <div class="step">
+        <b>Step 3</b>
+        <div>
+          <h3>Get the answer from Froy.</h3>
+          <p>If the work fits, you get next steps. If it does not, you find that out before wasting a week in a sales queue.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ports" class="band">
+  <div class="wrap">
+    <p class="kick">Port and distribution lanes</p>
+    <h2 class="section-title">A South Florida warehouse position without Miami warehouse chaos.</h2>
+    <p class="lead">The facility sits in Fort Lauderdale for Port Everglades work, PortMiami access, and Broward/Miami-Dade distribution. That makes it useful for importers who need inventory landed, held, and moved without leasing their own space.</p>
+    <div class="port-grid">
+      <div class="port">
+        <h3>Port Everglades</h3>
+        <p>Use a Fort Lauderdale warehouse base close to the port lanes importers already run.</p>
+      </div>
+      <div class="port">
+        <h3>PortMiami</h3>
+        <p>Support Miami-bound inventory while keeping storage and operator contact in Fort Lauderdale.</p>
+      </div>
+      <div class="port">
+        <h3>South Florida</h3>
+        <p>Hold inventory near customers, carriers, and regional delivery routes before it moves outbound.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <p class="kick">Fit rules</p>
+    <h2 class="section-title">Clear fit beats vague capacity talk.</h2>
+    <p class="lead">Perfect Imports is a practical 3PL warehouse option for ambient goods and recurring movement. It is not a cold-chain pitch.</p>
+    <div class="limits">
+      <div class="limit good">
+        <h3>Good fit</h3>
+        <p>Palletized inventory, racked storage, ambient climate control, receiving, pick/pack, pallet-out handling, and outbound distribution.</p>
+      </div>
+      <div class="limit">
+        <h3>Not the fit</h3>
+        <p>Chilled storage, frozen storage, refrigerated handling, or any product that needs a true cold-chain facility.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap contact">
+    <p class="kick">Get pricing</p>
+    <h2 class="section-title">Tell Froy what needs to move.</h2>
+    <p class="lead">Pallet count, product type, order profile, and timing are enough to start. You will get a direct reply from the operator, usually same day.</p>
+
+    <form id="inquiry-form" class="inquiry-form form-box" data-conversion-send-to="AW-18417846877/JnV2CM2B2-0cEN2UqM5E" method="POST" action="/api/inquiry">
+      <input type="hidden" name="source" value="3pl-warehousing">
+      <div style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%)" aria-hidden="true">
+        <input type="text" name="pi_inquiry_extra" tabindex="-1" autocomplete="new-password" aria-hidden="true">
+      </div>
+      <div class="field-grid">
+        <input name="name" placeholder="Your name" autocomplete="name">
+        <input name="company" placeholder="Company" autocomplete="organization">
+        <input name="email" type="email" required placeholder="Email (required)" autocomplete="email">
+        <input name="commodity" placeholder="What are you storing?">
+        <input name="approx_volume" placeholder="Roughly how much? eg 20 pallets, 1 container/month">
+        <textarea name="message" required rows="4" placeholder="Inbound timing, outbound profile, and anything Froy should know"></textarea>
+        <button type="submit" class="btn solid" style="justify-self:start">Send enquiry &rarr;</button>
+      </div>
+      <p id="inquiry-status" class="status" role="status" aria-live="polite"></p>
+    </form>
+    <p class="fine">Prefer email?
+      <!--email_off--><a href="mailto:froy@perfect-imports.com?subject=3PL%20warehousing%20enquiry" class="link">froy@perfect-imports.com</a><!--/email_off-->
+    </p>
+    <script defer src="/assets/inquiry-form.b07ea303989c.js"></script>
+    <p class="sig">Froy Monteverde <span>&middot; Managing Director, Perfect Imports</span></p>
+    <p class="fine">Perfect Imports LLC &middot; 3259 SW 11th Ave, Fort Lauderdale, FL 33315</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top">
+      <img src="/assets/logo-web.png" alt="Perfect Imports">
+    </a>
+    <div class="cols">
+      <div class="col"><b>Explore</b>
+        <a href="#services">Services</a>
+        <a href="#flow">Flow</a>
+        <a href="#ports">Ports</a>
+      </div>
+      <div class="col"><b>Contact</b>
+        <!--email_off--><a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a><!--/email_off-->
+        <span>Froy Monteverde, Managing Director</span>
+        <span>3259 SW 11th Ave, Fort Lauderdale, FL 33315</span>
+      </div>
+    </div>
+    <div class="base">&copy; 2026 Perfect Imports LLC &middot; 3PL warehousing and distribution &middot; Fort Lauderdale, Florida
+      <div class="legal"><a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a></div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

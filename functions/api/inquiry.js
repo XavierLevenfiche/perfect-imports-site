@@ -45,6 +45,7 @@ const HONEYPOT_RATE_LIMIT_PREFIX = "rate:inquiry-honeypot:";
 
 const SOURCE_ALLOWLIST = [
   "bonded-warehousing",
+  "3pl-warehousing",
   "verified-buyer-list-79",
   "market-opportunity-brief-99",
   "free-sample",

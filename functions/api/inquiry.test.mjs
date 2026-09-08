@@ -127,7 +127,7 @@ test("successful submissions return the durable inquiry id that was written", as
   const kv = new MockKV();
 
   const response = await worker.onRequestPost({
-    request: formRequest("203.0.113.10", "bonded-warehousing"),
+    request: formRequest("203.0.113.10", "3pl-warehousing"),
     env: { INQUIRIES: kv },
   });
   const body = await response.json();
@@ -141,6 +141,7 @@ test("successful submissions return the durable inquiry id that was written", as
   assert.equal(puts.length, 1);
   assert.equal(body.inquiry_id, puts[0].key);
   assert.equal(storedRecord(kv).inquiry_id, puts[0].key);
+  assert.equal(storedRecord(kv).source, "3pl-warehousing");
 });
 
 test("attribution and qualification fields round-trip into storage with caps", async () => {

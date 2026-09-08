@@ -11,6 +11,11 @@ const ID = 'inq:2026-09-07T12:00:00Z:12345678-1234-4123-8123-123456789012';
 const LABEL = 'AW-18417846877/JnV2CM2B2-0cEN2UqM5E';
 const accepted = {ok:true, accepted:true, stored:true, inquiry_id:ID};
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const PAGES = [
+  {path:'index.html', conversion:false},
+  {path:'bonded-warehousing/index.html', conversion:true},
+  {path:'3pl-warehousing/index.html', conversion:true},
+];
 
 async function browser(page, replies = [], config = {}) {
   const html = await readFile(path.join(ROOT, page), 'utf8');
@@ -77,7 +82,7 @@ async function browser(page, replies = [], config = {}) {
   };
 }
 
-for (const page of ['index.html','bonded-warehousing/index.html']) {
+for (const {path:page, conversion} of PAGES) {
   test(page+': rejects false/malformed/HTTP-failed acceptance without events or redirect', async()=>{
     for(const reply of [
       {body:{ok:true}}, {body:{ok:true,inquiry_id:ID}},
@@ -96,8 +101,8 @@ for (const page of ['index.html','bonded-warehousing/index.html']) {
     const ui=await browser(page,[{body:accepted}]);await ui.submit();await ui.submit();await ui.runTimers(2000);
     assert.equal(ui.requests.length,1);assert.equal(ui.redirects.length,1);
     assert.equal(ui.events.filter(row=>row[1]==='generate_lead').length,1);
-    assert.equal(ui.events.filter(row=>row[1]==='conversion').length,page.startsWith('bonded')?1:0);
-    if(page.startsWith('bonded'))assert.equal(ui.events.find(row=>row[1]==='conversion')[2].send_to,LABEL);
+    assert.equal(ui.events.filter(row=>row[1]==='conversion').length,conversion?1:0);
+    if(conversion)assert.equal(ui.events.find(row=>row[1]==='conversion')[2].send_to,LABEL);
     for(const row of ui.events){assert.equal(row[2].transaction_id,ID);assert.ok(row[2].transaction_id.length<=64);}
     assert.equal(ui.requests[0].options.body.get('utm_source'),'fixture');
   });
@@ -126,7 +131,7 @@ for (const page of ['index.html','bonded-warehousing/index.html']) {
     }
     await ui.runTimers(2000);assert.equal(ui.redirects.length,1);
     const sync=await browser(page,[{body:accepted}],{syncCallbacks:true});await sync.submit();
-    assert.equal(sync.events.length,page.startsWith('bonded')?2:1);assert.equal(sync.redirects.length,1);
+    assert.equal(sync.events.length,conversion?2:1);assert.equal(sync.redirects.length,1);
   });
   test(page+': fresh click ID replaces earlier organic attribution',async()=>{
     const ui=await browser(page,[{body:accepted}],{

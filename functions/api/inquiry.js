@@ -116,15 +116,29 @@ function classifyChannel(payload) {
   return "direct";
 }
 
-function json(obj, status, extraHeaders) {
-  var headers = { "content-type": "application/json" };
+function json(obj, status, extraHeaders, request) {
+  var headers = { "content-type": "application/json", "cache-control": "no-store", "vary": "Accept" };
   Object.keys(extraHeaders || {}).forEach(function (key) {
     headers[key] = extraHeaders[key];
   });
-  return new Response(JSON.stringify(obj), {
-    status: status || 200,
-    headers: headers,
-  });
+  var outcome = { accepted: false, stored: false, ...obj };
+  var accept = request ? (request.headers.get("accept") || "").toLowerCase() : "";
+  if (!accept.includes("application/json") && accept.includes("text/html")) {
+    var accepted = outcome.ok === true && outcome.accepted === true && outcome.stored === true;
+    var title = accepted ? "Enquiry received" : "Enquiry not confirmed";
+    var message = accepted ? "Thanks — your enquiry has been received. I usually reply the same day." :
+      (outcome.error || "We could not confirm your enquiry was received.");
+    var escape = value => String(value).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+    headers["content-type"] = "text/html; charset=utf-8";
+    headers["content-security-policy"] = "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'";
+    return new Response('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>' + title + ' — Perfect Imports</title><style>body{font:18px/1.6 system-ui;background:#f5f1e8;color:#142c3e;max-width:42rem;margin:10vh auto;padding:2rem}a{color:inherit}</style>' +
+      '<main><p>Perfect Imports</p><h1>' + title + '</h1><p>' + escape(message) + '</p>' +
+      (accepted ? '' : '<p>Use your browser’s Back button to return to your details, or email us directly.</p>') +
+      '<p><a href="mailto:froy@perfect-imports.com">froy@perfect-imports.com</a></p><p><a href="/">Return to Perfect Imports</a></p></main></html>',
+      { status: status || 200, headers: headers });
+  }
+  return new Response(JSON.stringify(outcome), { status: status || 200, headers: headers });
 }
 
 async function readBodyLimited(request) {
@@ -204,10 +218,11 @@ async function rateLimit(request, env) {
 export async function onRequestPost(context) {
   const request = context.request;
   const env = context.env;
+  const respond = (obj, status, headers) => json(obj, status, headers, request);
 
   var declared = request.headers.get("content-length");
   if (declared && /^\d+$/.test(declared.trim()) && Number(declared) > MAX_BODY_BYTES) {
-    return json({ ok: false, error: "request body is too large" }, 413);
+    return respond({ ok: false, error: "request body is too large" }, 413);
   }
 
   let form;
@@ -216,26 +231,26 @@ export async function onRequestPost(context) {
     form = await parseBody(request, bodyBytes);
   } catch (e) {
     if (e && e.tooLarge) {
-      return json({ ok: false, error: "request body is too large" }, 413);
+      return respond({ ok: false, error: "request body is too large" }, 413);
     }
-    return json({ ok: false, error: "could not read the form" }, 400);
+    return respond({ ok: false, error: "could not read the form" }, 400);
   }
   if (!form || typeof form !== "object" || Array.isArray(form)) {
-    return json({ ok: false, error: "could not read the form" }, 400);
+    return respond({ ok: false, error: "could not read the form" }, 400);
   }
 
-  // Honeypot. Real users never fill a hidden field; naive bots fill everything.
-  // Answer 200 so a bot cannot tell it was rejected.
-  // `ok` alone is deliberately not proof of storage; `inquiry_id` is the durable-write
-  // signal the conversion pixel keys on.
-  if (clean(form.website, 200)) return json({ ok: true });
+  // A discarded submission is never accepted or stored, even if autofill hit the
+  // hidden field. Keep the buyer's form intact and offer a real contact fallback.
+  if (clean(form.website, 200)) {
+    return respond({ ok: false, error: "We could not accept this enquiry. Please email froy@perfect-imports.com." }, 422);
+  }
 
   // Honeypot traffic must not consume the shared-IP allowance before it is rejected.
   // Otherwise five naive bots behind an office NAT can block a real buyer for 10 minutes.
   try {
     var admission = await rateLimit(request, env);
     if (!admission.allowed) {
-      return json(
+      return respond(
         { ok: false, error: "too many enquiries - please try again shortly" },
         429,
         { "retry-after": String(admission.retryAfter) }
@@ -276,10 +291,10 @@ export async function onRequestPost(context) {
   payload.channel = classifyChannel(payload);
 
   if (!payload.email || !looksLikeEmail(payload.email)) {
-    return json({ ok: false, error: "a valid email address is required" }, 400);
+    return respond({ ok: false, error: "a valid email address is required" }, 400);
   }
   if (!payload.message) {
-    return json({ ok: false, error: "please tell us what you need" }, 400);
+    return respond({ ok: false, error: "please tell us what you need" }, 400);
   }
 
   // DURABLE FIRST. The visitor is told "sent" only when a durable record exists.
@@ -287,10 +302,13 @@ export async function onRequestPost(context) {
   // provider outage or a missing binding silently lost the lead while the form reset and
   // said thank you. Logging is not acceptance.
   var stored = false;
+  var storageUnknown = false;
   var key = "";
   try {
     if (env.INQUIRIES) {
-      key = "inq:" + payload.received_utc + ":" + crypto.randomUUID();
+      // Seconds + UUID keeps the durable key at 61 characters (Ads maximum 64).
+      // received_utc retains its original full precision in the record.
+      key = "inq:" + payload.received_utc.replace(/\.\d{3}Z$/, "Z") + ":" + crypto.randomUUID();
       payload.inquiry_id = key;
       await env.INQUIRIES.put(key, JSON.stringify(payload));
       stored = true;
@@ -298,17 +316,20 @@ export async function onRequestPost(context) {
       console.error("inquiry: KV binding INQUIRIES missing");
     }
   } catch (err) {
+    // A failed acknowledgement does not prove the write never committed.
+    storageUnknown = true;
+    console.error("inquiry: KV write failed", key, err);
     delete payload.inquiry_id;
-    key = "";
-    console.error("inquiry: KV write failed", err);
   }
-
-  console.log("INQUIRY", JSON.stringify(payload));
 
   if (!stored) {
+    // Preserve the existing operator rescue path only on failure. All fields were
+    // bounded above; a log is not durable acceptance or proof of non-commitment.
+    console.error("INQUIRY_UNSAVED", JSON.stringify(payload), key || null);
     // Retryable. The browser keeps the form populated so nothing the visitor typed is lost.
-    return json({ ok: false, error: "could not save your enquiry - please email froy@perfect-imports.com" }, 503);
+    return respond({ ok: false, stored: storageUnknown ? null : false, error: "We could not confirm your enquiry was received. Please retry or email froy@perfect-imports.com." }, 503);
   }
 
-  return json({ ok: true, inquiry_id: key });
+  console.log("INQUIRY_STORED", key);
+  return respond({ ok: true, accepted: true, stored: true, inquiry_id: key });
 }

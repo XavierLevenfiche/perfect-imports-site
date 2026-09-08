@@ -60,7 +60,7 @@ function storedRecord(kv, index = 0) {
   return JSON.parse(inquiryPuts(kv)[index].value);
 }
 
-test("honeypot returns ok without an inquiry id and stores no inquiry record", async () => {
+test("honeypot is explicitly not accepted or stored and creates no record", async () => {
   const kv = new MockKV();
 
   const response = await worker.onRequestPost({
@@ -69,8 +69,10 @@ test("honeypot returns ok without an inquiry id and stores no inquiry record", a
   });
   const body = await response.json();
 
-  assert.equal(response.status, 200);
-  assert.deepEqual(body, { ok: true });
+  assert.equal(response.status, 422);
+  assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, false);
   assert.equal(Object.hasOwn(body, "inquiry_id"), false);
   assert.equal(inquiryPuts(kv).length, 0);
   assert.equal(kv.gets.length, 0);
@@ -89,6 +91,9 @@ test("successful submissions return the durable inquiry id that was written", as
 
   assert.equal(response.status, 200);
   assert.equal(body.ok, true);
+  assert.equal(body.accepted, true);
+  assert.equal(body.stored, true);
+  assert.ok(body.inquiry_id.length <= 64);
   assert.equal(puts.length, 1);
   assert.equal(body.inquiry_id, puts[0].key);
   assert.equal(storedRecord(kv).inquiry_id, puts[0].key);
@@ -307,6 +312,8 @@ test("invalid email addresses are rejected and not stored", async () => {
 
   assert.equal(response.status, 400);
   assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, false);
   assert.equal(body.error, "a valid email address is required");
   assert.equal(inquiryPuts(kv).length, 0);
 });
@@ -322,6 +329,8 @@ test("missing messages are rejected and not stored", async () => {
 
   assert.equal(response.status, 400);
   assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, false);
   assert.equal(body.error, "please tell us what you need");
   assert.equal(inquiryPuts(kv).length, 0);
 });
@@ -427,6 +436,8 @@ test("durable KV write failures return 503 and no success inquiry id", async () 
 
     assert.equal(response.status, 503);
     assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, null);
     assert.equal(Object.hasOwn(body, "inquiry_id"), false);
     assert.equal(inquiryPuts(kv).length, 0);
   } finally {
@@ -454,4 +465,144 @@ test("small JSON submissions are still accepted after bounded parsing", async ()
 
   assert.equal(response.status, 200);
   assert.equal(storedRecord(kv).source, "free-sample");
+});
+
+
+test("missing KV cannot report acceptance", async () => {
+  const response = await worker.onRequestPost({ request: formRequest(), env: {} });
+  const body = await response.json();
+  assert.equal(response.status, 503);
+  assert.equal(body.ok, false);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, false);
+  assert.equal(Object.hasOwn(body, "inquiry_id"), false);
+});
+
+test("a failed write followed by a manual retry accepts exactly one durable record", async () => {
+  const kv = new MockKV();
+  let fail = true;
+  kv.put = async function (key, value, options) {
+    if (key.startsWith("inq:") && fail) { fail = false; throw new Error("synthetic write failure"); }
+    return MockKV.prototype.put.call(this, key, value, options);
+  };
+  const first = await worker.onRequestPost({ request: formRequest(), env: { INQUIRIES: kv } });
+  assert.equal(first.status, 503);
+  assert.equal(inquiryPuts(kv).length, 0);
+  const retry = await worker.onRequestPost({ request: formRequest(), env: { INQUIRIES: kv } });
+  assert.equal(retry.status, 200);
+  assert.equal(inquiryPuts(kv).length, 1);
+  assert.equal((await retry.json()).inquiry_id.length, 61);
+});
+
+test("ambiguous commit-then-error never reports confirmed acceptance", async () => {
+  const kv = new MockKV();
+  kv.put = async function (key, value, options) {
+    await MockKV.prototype.put.call(this, key, value, options);
+    if (key.startsWith("inq:")) throw new Error("synthetic acknowledgement lost after commit");
+  };
+  const response = await worker.onRequestPost({ request: formRequest(), env: { INQUIRIES: kv } });
+  const body = await response.json();
+  assert.equal(response.status, 503);
+  assert.equal(body.accepted, false);
+  assert.equal(body.stored, null);
+  assert.equal(Object.hasOwn(body, "inquiry_id"), false);
+  assert.equal(inquiryPuts(kv).length, 1); // Ambiguous state remains explicit, never invented success.
+});
+
+test("simultaneous valid enquiries have separate bounded IDs, preserving relay identity", async () => {
+  const kv = new MockKV();
+  const replies = await Promise.all(Array.from({ length: 20 }, (_, index) =>
+    worker.onRequestPost({ request: formRequest("203.0.113." + (50 + index)), env: { INQUIRIES: kv } })
+  ));
+  const bodies = await Promise.all(replies.map(response => response.json()));
+  assert.equal(new Set(bodies.map(body => body.inquiry_id)).size, 20);
+  for (const body of bodies) {
+    assert.equal(body.inquiry_id.length, 61);
+    assert.equal(body.stored, true);
+    assert.equal(JSON.parse(kv.values.get(body.inquiry_id)).inquiry_id, body.inquiry_id);
+  }
+});
+
+test("invalid JSON and empty message never return accepted or stored", async () => {
+  for (const request of [
+    new Request("https://example.test/api/inquiry", { method: "POST", headers: {"content-type":"application/json"}, body: "{" }),
+    formRequest("203.0.113.10", "contact-section", { message: "" }),
+  ]) {
+    const kv = new MockKV();
+    const response = await worker.onRequestPost({ request, env: { INQUIRIES: kv } });
+    const body = await response.json();
+    assert.equal(response.status, 400);
+    assert.equal(body.accepted, false);
+    assert.equal(body.stored, false);
+    assert.equal(inquiryPuts(kv).length, 0);
+  }
+});
+
+test("native HTML confirmation is returned only after confirmed storage", async () => {
+  const kv = new MockKV();
+  const response = await worker.onRequestPost({ request: formRequest("203.0.113.40", "contact-section", {}, {accept:"text/html"}), env:{INQUIRIES:kv} });
+  assert.equal(response.status,200);
+  assert.match(response.headers.get('content-type'),/text\/html/);
+  const html=await response.text();
+  assert.match(html,/<h1>Enquiry received<\/h1>/);
+  assert.equal(inquiryPuts(kv).length,1);
+  assert.equal(html.includes('buyer@example.com'),false);
+  assert.equal(html.includes('<script'),false);
+});
+
+test("native honeypot and storage errors cannot render a received heading", async () => {
+  for(const mode of ['honeypot','no-binding']) {
+    const kv=new MockKV();
+    const response=await worker.onRequestPost({request:formRequest('203.0.113.41','contact-section',mode==='honeypot'?{website:'autofill.example'}:{},{accept:'text/html'}),env:mode==='no-binding'?{}:{INQUIRIES:kv}});
+    assert.equal(response.status,mode==='honeypot'?422:503);
+    const html=await response.text();assert.match(html,/<h1>Enquiry not confirmed<\/h1>/);assert.equal(inquiryPuts(kv).length,0);
+  }
+});
+
+test("the enhanced client can explicitly negotiate JSON and no-store responses",async()=>{
+  const response=await worker.onRequestPost({request:formRequest('203.0.113.42','contact-section',{}, {accept:'application/json'}),env:{INQUIRIES:new MockKV()}});
+  assert.match(response.headers.get('content-type'),/application\/json/);
+  assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(response.headers.get('vary'),'Accept');
+  assert.equal((await response.json()).stored,true);
+});
+
+
+test("failure-only rescue log preserves bounded buyer details without claiming acceptance", async () => {
+  const errors = [], logs = [];
+  const originalError = console.error, originalLog = console.log;
+  console.error = (...args) => errors.push(args);
+  console.log = (...args) => logs.push(args);
+  try {
+    const failed = new MockKV();
+    failed.put = async (key, value) => { if (key.startsWith("inq:")) throw new Error("synthetic failure"); };
+    const response = await worker.onRequestPost({request: formRequest(), env: {INQUIRIES: failed}});
+    assert.equal(response.status, 503);
+    const failure = await response.json();
+    assert.equal(failure.accepted, false);
+    assert.equal(Object.hasOwn(failure, "inquiry_id"), false);
+    assert.match(errors.find(row => row[0] === "inquiry: KV write failed")[1], /^inq:/);
+    const rescued = errors.filter(row => row[0] === "INQUIRY_UNSAVED");
+    assert.equal(rescued.length, 1);
+    assert.equal(rescued[0][2], errors.find(row => row[0] === "inquiry: KV write failed")[1]);
+    const payload = JSON.parse(rescued[0][1]);
+    assert.equal(payload.email, "buyer@example.com");
+    assert.equal(payload.message, "Please contact me");
+    assert.ok(payload.received_utc);
+    assert.equal(logs.length, 0);
+    errors.length = 0;
+    const success = await worker.onRequestPost({request: formRequest(), env: {INQUIRIES: new MockKV()}});
+    assert.equal(success.status, 200);
+    assert.equal(errors.filter(row => row[0] === "INQUIRY_UNSAVED").length, 0);
+    assert.equal(logs.length, 1);
+    assert.equal(logs[0][0], "INQUIRY_STORED");
+    assert.equal(logs[0].length, 2);
+    assert.match(logs[0][1], /^inq:/);
+  } finally { console.error = originalError; console.log = originalLog; }
+});
+
+
+test("explicit JSON takes precedence in mixed Accept headers",async()=>{
+  const response=await worker.onRequestPost({request:formRequest('203.0.113.43','contact-section',{}, {accept:'text/html, application/json, */*'}),env:{INQUIRIES:new MockKV()}});
+  assert.match(response.headers.get('content-type'),/application\/json/);
+  assert.equal((await response.json()).stored,true);
 });

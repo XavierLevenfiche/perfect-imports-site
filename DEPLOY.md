@@ -86,7 +86,7 @@ and is a node test runner file — not a route. Do not ship it. Stage a copy fir
 
 ```bash
 rsync -a --exclude '.git' --exclude '.wrangler' --exclude '.gitignore' \
-      --exclude 'functions/api/*.test.mjs' ./ /tmp/pi-deploy/
+      --exclude 'functions/api/*.test.mjs' --exclude 'tests/' --exclude '.pytest_cache/' ./ /tmp/pi-deploy/
 ```
 
 ### Deploy to a preview branch first
@@ -94,7 +94,8 @@ rsync -a --exclude '.git' --exclude '.wrangler' --exclude '.gitignore' \
 Any `--branch` other than `main` produces a testable URL without touching production:
 
 ```bash
-npx --yes wrangler@4 pages deploy /tmp/pi-deploy --project-name=perfect-imports \
+cd /tmp/pi-deploy
+npx --yes wrangler@4 pages deploy . --project-name=perfect-imports \
   --branch=preflight --commit-dirty=true
 ```
 
@@ -198,3 +199,60 @@ Workspace mail is never in the blast radius.
 3. **`removal.html` mails froy@**, because the `removal@` alias does not exist (operator
    and API confirmed 2026-07-05). If you create the alias in Workspace Admin, flip the
    mailto back for a cleaner channel.
+
+
+## Lead acceptance and shared browser contract
+
+Before staging a release, run both behavior suites from the site source directory:
+
+```bash
+node --test functions/api/inquiry.test.mjs tests/inquiry-client.test.mjs
+```
+
+The browser suite executes the shared script referenced by each actual page, checks its
+content-hashed filename, and tests receipt/error/analytics behavior. Both form pages and
+/thanks/ must reference the same new asset bytes. Keep any already deployed hashed assets
+available through rollout and rollback; never modify an asset without changing its hash
+and all three references. Do not ship the tests/ directory as public assets.
+
+The server emits JSON for enhanced submissions and useful HTML for native browser POSTs.
+Only HTTP success with `ok:true`, `accepted:true`, `stored:true` and a valid durable ID is
+confirmation. A write acknowledgement error returns `stored:null` because persistence is
+unknown. Never turn that into received copy or a conversion. Page views of /thanks/ are
+not conversion evidence; successful handlers emit the existing lead events once.
+
+The bonded page retains its existing direct Ads conversion label, and both forms retain
+the GA4 generate_lead event. Their conversion-action settings are unchanged; whether two
+configured primary actions count the same enquiry remains a separate Ads decision.
+Repeated clicks while a request is running or after confirmed acceptance are ignored.
+No automatic retry occurs. After ambiguous response loss, a manual retry can create a
+second ID/record; this change does not claim exactly-once submission with eventual KV.
+
+Before publishing: independent model review, rendered UI verification, offline browser
+checks for normal/honeypot/KV error, native POST with JS disabled or the asset blocked,
+direct/reloaded thanks, and a verified Functions bundle remain required. Test against
+mock KV first; do not submit an unapproved test lead to the live production namespace.
+
+Before declaring rollout complete, require exact current HTML/shared-asset/Function deployment identity for all three pages. If any HTML is stale, the owner's scoped cache purge and successful reread are blocking gates. A static
+asset upload alone cannot establish the backend contract; follow the Functions checks
+above and a separately authorized acceptance check. This documentation is not permission
+to change ad spend, ad claims, or conversion-action settings.
+
+
+Blocking rollout checks for this shared asset: verify the deployed JavaScript response MIME type
+and that the effective CSP allows the same-origin asset. Verify cache headers and current
+HTML bytes for /, /bonded-warehousing/ and /thanks/; use the owner's scoped cache-purge
+procedure if stale HTML remains. Old cached /thanks/ code can still fire its old page-load
+event; do not claim conversion accuracy until current HTML is confirmed. A native browser
+POST refresh can resubmit, and a very early native submission before the deferred asset
+loads may omit client-side attribution. Both are existing fallback limitations.
+
+Both forms give their existing event callbacks up to two seconds before navigating;
+blocked analytics still cannot reverse confirmed receipt. Thanks without a recent receipt
+uses neutral contact copy, including successful old cached form tabs that never created a
+new receipt marker. Full bounded payload logging is retained only on failed storage as an
+operator rescue aid; neither log retention nor operator recovery is guaranteed by this
+change. Success logging contains only the durable ID. Never treat a rescue log as proof
+that an ambiguous write did not commit.
+
+A visible 422 lets bots distinguish honeypot rejection; that deliberate trade makes discarded submissions honest. Inspect the content-hashed asset cache policy; immutable caching is compatible with its filename, but do not apply it to HTML.

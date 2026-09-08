@@ -143,8 +143,8 @@
   
   <meta name="robots" content="noindex, nofollow">
   <!-- Google tag (gtag.js) - Google Ads AW-18417846877. Added 2026-08-29 for the
-       bonded-warehousing search test. Conversion fires on /thanks/, which both forms
-       redirect to on success. -->
+       bonded-warehousing search test. This page renders a browser receipt;
+       only a confirmed form POST fires a lead event. -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18417846877"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -152,25 +152,20 @@
     gtag('js', new Date());
     gtag('config', 'AW-18417846877');
     gtag('config', 'G-7ECPZLEWS6'); // GA4, 2026-09-06: same Google tag, adds Analytics
-    // Lead-path test (memo 2026-09-01): this page is reached only after a
-    // successful inquiry POST, so one load = one lead. GA4 gets the standard
-    // generate_lead event; Ads gets a conversion once the label exists.
-    gtag('event', 'generate_lead', { currency: 'USD', value: 0 });
-    // Ads counts this same event: GA4 is linked in Ads (Goals) and
-    // generate_lead is imported as the conversion, so no AW- label is needed.
+    // Confirmed POST handlers own lead events; page loads are not conversions.
   </script>
 </head>
 <body>
 <section class="sec-dense">
   <div class="wrap contact">
-    <p class="kick">Received</p>
-    <h1>Thanks &mdash; I have your enquiry.</h1>
-    <p class="lead" style="margin-left:auto;margin-right:auto">I read these myself and usually reply the
-      same day. If it is urgent, email me directly at
+    <p class="kick" id="inquiry-receipt-state">Enquiries</p>
+    <h1 id="inquiry-confirmation">Contact Perfect Imports</h1>
+    <p class="lead" style="margin-left:auto;margin-right:auto"><span id="inquiry-confirmation-copy">For questions about your enquiry, email me directly at</span>
       <!--email_off--><a href="mailto:froy@perfect-imports.com" class="link" style="color:var(--brass-d)">froy@perfect-imports.com</a><!--/email_off-->.</p>
     <p class="sig">Froy Monteverde <span>&middot; Managing Director, Perfect Imports</span></p>
     <p class="fine">Perfect Imports LLC &middot; 3259 SW 11th Ave, Fort Lauderdale, FL 33315</p>
   </div>
 </section>
+<script defer src="/assets/inquiry-form.b07ea303989c.js"></script>
 </body>
 </html>
